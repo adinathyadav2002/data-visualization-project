@@ -7,7 +7,7 @@ import Index from "./pages/Index";
 import DataAnalysis from "./pages/DataAnalysis";
 import NotFound from "./pages/NotFound";
 import { Dashboard } from "./pages/Dashboard";
-import { NavbarMain } from "./components/layout/Navbar";
+import { NavbarMain } from "./components/layout/NavbarMain";
 import { SignupForm } from "./pages/SignupForm";
 import SigninForm from "./pages/SignInForm";
 

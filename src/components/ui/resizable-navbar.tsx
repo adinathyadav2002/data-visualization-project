@@ -26,7 +26,7 @@ interface NavItemsProps {
   items: {
     name: string;
     to?: string;
-    href?: string;
+    href?: string; // Use `href` for external links
   }[];
   className?: string;
   onItemClick?: () => void;
@@ -104,7 +104,7 @@ export const NavBody = ({ children, className, visible }: NavBodyProps) => {
         minWidth: "800px",
       }}
       className={cn(
-        "relative z-[60] mx-auto hidden w-full  flex-row items-center justify-between self-start rounded-full bg-transparent px-4 py-2 lg:flex dark:bg-transparent",
+        "relative z-[60] mx-auto hidden w-full max-w-7xl flex-row items-center justify-between self-start rounded-full bg-transparent px-4 py-2 lg:flex dark:bg-transparent",
         visible && "bg-white/80 dark:bg-neutral-950/80",
         className
       )}
@@ -129,31 +129,38 @@ export const NavItems = ({ items, className, onItemClick }: NavItemsProps) => {
         if (item.to) {
           return (
             <Link
-              key={`nav-item-${idx}`}
-              to={item.to}
-              className={cn(
-                "relative px-2 py-1 transition duration-200",
-                hovered === idx ? "text-zinc-800" : "text-zinc-600"
-              )}
               onMouseEnter={() => setHovered(idx)}
               onClick={onItemClick}
+              className="cursor-pointer relative px-4 py-2 text-neutral-600 dark:text-neutral-300"
+              key={`link-${idx}`}
+              to={item.to}
             >
-              {item.name}
+              {hovered === idx && (
+                <motion.div
+                  layoutId="hovered"
+                  className="absolute inset-0 h-full w-full rounded-full bg-gray-100 dark:bg-neutral-800"
+                />
+              )}
+              <span className="relative z-20">{item.name}</span>
             </Link>
           );
         }
+
         return (
           <a
-            key={`nav-item-${idx}`}
-            href={item.href}
-            className={cn(
-              "relative px-2 py-1 transition duration-200",
-              hovered === idx ? "text-zinc-800" : "text-zinc-600"
-            )}
             onMouseEnter={() => setHovered(idx)}
             onClick={onItemClick}
+            className="cursor-pointer relative px-4 py-2 text-neutral-600 dark:text-neutral-300"
+            key={`link-${idx}`}
+            href={item.href}
           >
-            {item.name}
+            {hovered === idx && (
+              <motion.div
+                layoutId="hovered"
+                className="absolute inset-0 h-full w-full rounded-full bg-gray-100 dark:bg-neutral-800"
+              />
+            )}
+            <span className="relative z-20">{item.name}</span>
           </a>
         );
       })}
@@ -253,7 +260,7 @@ export const NavbarLogo = () => {
       className="relative z-20 mr-4 flex items-center space-x-2 px-2 py-1 text-sm font-normal text-black"
     >
       <img
-        src="./android-chrome-192x192.png"
+        src="./android-chrome-512x512.png"
         alt="logo"
         width={30}
         height={30}
@@ -266,12 +273,12 @@ export const NavbarLogo = () => {
 };
 
 export const NavbarButton = ({
-  href,
+  to,
   children,
   className,
   variant = "primary",
 }: {
-  href?: string;
+  to?: string;
   children: React.ReactNode;
   className?: string;
   variant?: "primary" | "secondary" | "dark" | "gradient";
@@ -293,7 +300,7 @@ export const NavbarButton = ({
 
   return (
     <Link
-      to={href || undefined}
+      to={to || undefined}
       className={cn(baseStyles, variantStyles[variant], className)}
     >
       {children}

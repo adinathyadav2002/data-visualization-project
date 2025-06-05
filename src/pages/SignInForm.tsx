@@ -1,4 +1,6 @@
+import { EyeOff } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 export default function SigninForm() {
   const [formData, setFormData] = useState({
@@ -27,7 +29,7 @@ export default function SigninForm() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
+    <div className="h-full flex flex-col items-center justify-center bg-gray-50">
       <div className="py-6 px-4 w-full">
         <div className="grid lg:grid-cols-2 items-center gap-6 max-w-6xl w-full mx-auto">
           <div className="border border-slate-300 rounded-lg p-6 max-w-md shadow-[0_2px_22px_-4px_rgba(93,96,127,0.2)] max-lg:mx-auto bg-white">
@@ -102,15 +104,7 @@ export default function SigninForm() {
                           <path d="M64 104C22.127 104 1.367 67.496.504 65.943a4 4 0 0 1 0-3.887C1.367 60.504 22.127 24 64 24s62.633 36.504 63.496 38.057a4 4 0 0 1 0 3.887C126.633 67.496 105.873 104 64 104zM8.707 63.994C13.465 71.205 32.146 96 64 96c31.955 0 50.553-24.775 55.293-31.994C114.535 56.795 95.854 32 64 32 32.045 32 13.447 56.775 8.707 63.994zM64 88c-13.234 0-24-10.766-24-24s10.766-24 24-24 24 10.766 24 24-10.766 24-24 24zm0-40c-8.822 0-16 7.178-16 16s7.178 16 16 16 16-7.178 16-16-7.178-16-16-16z"></path>
                         </svg>
                       ) : (
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="#bbb"
-                          className="w-[18px] h-[18px] cursor-pointer hover:fill-slate-600 transition-colors"
-                          viewBox="0 0 128 128"
-                        >
-                          <path d="m79.891 65.078 7.27-7.27C87.69 59.787 88 61.856 88 64c0 13.234-10.766 24-24 24-2.144 0-4.213-.31-6.192-.839l7.27-7.27a15.929 15.929 0 0 0 14.813-14.813zm-14.891-25.078c13.231 0 24 10.766 24 24 0 2.144-.31 4.213-.839 6.192l9.657 9.657c3.355-3.208 6.193-7.015 8.318-11.123a4 4 0 0 0 0-3.887C105.633 60.504 84.873 24 64 24c-5.271 0-10.362.834-14.982 2.339l12.26 12.26A23.756 23.756 0 0 1 65 40zm-40.891 25.078C26.09 68.213 26.4 66.144 26.4 64c0-13.234 10.766-24 24-24 2.144 0 4.213.31 6.192.839L46.935 30.182c-3.355 3.208-6.193 7.015-8.318 11.123a4 4 0 0 0 0 3.887C22.367 67.496 1.607 104 23.479 104c5.271 0 10.362-.834 14.982-2.339L26.201 89.401A23.756 23.756 0 0 1 24.109 65.078z"></path>
-                          <path d="m121.334 6.668-112 112a4 4 0 1 0 5.657 5.657l112-112a4 4 0 0 0-5.657-5.657z"></path>
-                        </svg>
+                        <EyeOff className="text-slate-300 w-[18px] h-[18px]" />
                       )}
                     </button>
                   </div>
@@ -152,12 +146,12 @@ export default function SigninForm() {
                   </button>
                   <p className="text-sm !mt-6 text-center text-slate-600">
                     Don't have an account{" "}
-                    <button
-                      type="button"
+                    <Link
+                      to="/register"
                       className="text-blue-600 font-medium hover:underline ml-1 whitespace-nowrap focus:outline-none focus:underline"
                     >
                       Register here
-                    </button>
+                    </Link>
                   </p>
                 </div>
               </form>

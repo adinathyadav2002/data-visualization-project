@@ -21,7 +21,7 @@ export function NavbarMain({ children }: { children: React.ReactNode }) {
     },
     {
       name: "Github",
-      href: "/github",
+      href: "https://github.com",
     },
     {
       name: "Contact",
@@ -39,10 +39,10 @@ export function NavbarMain({ children }: { children: React.ReactNode }) {
           <NavbarLogo />
           <NavItems items={navItems} />
           <div className="flex items-center gap-4">
-            <NavbarButton variant="secondary" href="/login">
+            <NavbarButton variant="secondary" to="/login">
               Login
             </NavbarButton>
-            <NavbarButton variant="primary" href="/register">
+            <NavbarButton variant="primary" to="/register">
               Register
             </NavbarButton>
           </div>

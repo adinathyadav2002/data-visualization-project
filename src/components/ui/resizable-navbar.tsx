@@ -9,6 +9,7 @@ import {
 } from "motion/react";
 
 import React, { useRef, useState } from "react";
+import { Link } from "react-router-dom";
 
 interface NavbarProps {
   children: React.ReactNode;
@@ -24,7 +25,8 @@ interface NavBodyProps {
 interface NavItemsProps {
   items: {
     name: string;
-    link: string;
+    to?: string;
+    href?: string;
   }[];
   className?: string;
   onItemClick?: () => void;
@@ -123,23 +125,38 @@ export const NavItems = ({ items, className, onItemClick }: NavItemsProps) => {
         className
       )}
     >
-      {items.map((item, idx) => (
-        <a
-          onMouseEnter={() => setHovered(idx)}
-          onClick={onItemClick}
-          className="relative px-4 py-2 text-neutral-600 dark:text-neutral-300"
-          key={`link-${idx}`}
-          href={item.link}
-        >
-          {hovered === idx && (
-            <motion.div
-              layoutId="hovered"
-              className="absolute inset-0 h-full w-full rounded-full bg-gray-100 dark:bg-neutral-800"
-            />
-          )}
-          <span className="relative z-20">{item.name}</span>
-        </a>
-      ))}
+      {items.map((item, idx) => {
+        if (item.to) {
+          return (
+            <Link
+              key={`nav-item-${idx}`}
+              to={item.to}
+              className={cn(
+                "relative px-2 py-1 transition duration-200",
+                hovered === idx ? "text-zinc-800" : "text-zinc-600"
+              )}
+              onMouseEnter={() => setHovered(idx)}
+              onClick={onItemClick}
+            >
+              {item.name}
+            </Link>
+          );
+        }
+        return (
+          <a
+            key={`nav-item-${idx}`}
+            href={item.href}
+            className={cn(
+              "relative px-2 py-1 transition duration-200",
+              hovered === idx ? "text-zinc-800" : "text-zinc-600"
+            )}
+            onMouseEnter={() => setHovered(idx)}
+            onClick={onItemClick}
+          >
+            {item.name}
+          </a>
+        );
+      })}
     </motion.div>
   );
 };
@@ -231,31 +248,30 @@ export const MobileNavToggle = ({
 
 export const NavbarLogo = () => {
   return (
-    <a
-      href="#"
+    <Link
+      to="/"
       className="relative z-20 mr-4 flex items-center space-x-2 px-2 py-1 text-sm font-normal text-black"
     >
       <img
-        src="https://assets.aceternity.com/logo-dark.png"
+        src="./android-chrome-192x192.png"
         alt="logo"
         width={30}
         height={30}
       />
-      <span className="font-medium text-black dark:text-white">Startup</span>
-    </a>
+      <span className="font-medium text-black dark:text-white">
+        Data Analyzer
+      </span>
+    </Link>
   );
 };
 
 export const NavbarButton = ({
   href,
-  as: Tag = "a",
   children,
   className,
   variant = "primary",
-  ...props
 }: {
   href?: string;
-  as?: React.ElementType;
   children: React.ReactNode;
   className?: string;
   variant?: "primary" | "secondary" | "dark" | "gradient";
@@ -276,12 +292,11 @@ export const NavbarButton = ({
   };
 
   return (
-    <Tag
-      href={href || undefined}
+    <Link
+      to={href || undefined}
       className={cn(baseStyles, variantStyles[variant], className)}
-      {...props}
     >
       {children}
-    </Tag>
+    </Link>
   );
 };

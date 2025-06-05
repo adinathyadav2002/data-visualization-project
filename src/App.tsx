@@ -8,6 +8,8 @@ import DataAnalysis from "./pages/DataAnalysis";
 import NotFound from "./pages/NotFound";
 import { Dashboard } from "./pages/Dashboard";
 import { NavbarMain } from "./components/layout/Navbar";
+import { SignupForm } from "./pages/SignupForm";
+import SigninForm from "./pages/SignInForm";
 
 const queryClient = new QueryClient();
 
@@ -19,6 +21,14 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<NavbarMain children={<Index />} />} />
+          <Route
+            path="/register"
+            element={<NavbarMain children={<SignupForm />} />}
+          />
+          <Route
+            path="/login"
+            element={<NavbarMain children={<SigninForm />} />}
+          />
           <Route
             path="/dashboard"
             element={<Dashboard children={<DataAnalysis />} />}

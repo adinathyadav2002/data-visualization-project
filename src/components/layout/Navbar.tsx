@@ -1,4 +1,5 @@
 "use client";
+import { Link } from "react-router-dom";
 import {
   Navbar,
   NavBody,
@@ -16,15 +17,15 @@ export function NavbarMain({ children }: { children: React.ReactNode }) {
   const navItems = [
     {
       name: "Features",
-      link: "#features",
+      to: "/features",
     },
     {
       name: "Github",
-      link: "#github",
+      href: "/github",
     },
     {
       name: "Contact",
-      link: "#contact",
+      to: "/contact",
     },
   ];
 
@@ -38,8 +39,12 @@ export function NavbarMain({ children }: { children: React.ReactNode }) {
           <NavbarLogo />
           <NavItems items={navItems} />
           <div className="flex items-center gap-4">
-            <NavbarButton variant="secondary">Login</NavbarButton>
-            <NavbarButton variant="primary">Register</NavbarButton>
+            <NavbarButton variant="secondary" href="/login">
+              Login
+            </NavbarButton>
+            <NavbarButton variant="primary" href="/register">
+              Register
+            </NavbarButton>
           </div>
         </NavBody>
 
@@ -57,16 +62,30 @@ export function NavbarMain({ children }: { children: React.ReactNode }) {
             isOpen={isMobileMenuOpen}
             onClose={() => setIsMobileMenuOpen(false)}
           >
-            {navItems.map((item, idx) => (
-              <a
-                key={`mobile-link-${idx}`}
-                href={item.link}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="relative text-neutral-600 dark:text-neutral-300"
-              >
-                <span className="block">{item.name}</span>
-              </a>
-            ))}
+            {navItems.map((item, idx) => {
+              if (item.to) {
+                return (
+                  <Link
+                    key={`mobile-link-${idx}`}
+                    to={item.to}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="relative text-neutral-600 dark:text-neutral-300"
+                  >
+                    <span className="block">{item.name}</span>
+                  </Link>
+                );
+              }
+              return (
+                <a
+                  key={`mobile-link-${idx}`}
+                  href={item.href}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="relative text-neutral-600 dark:text-neutral-300"
+                >
+                  <span className="block">{item.name}</span>
+                </a>
+              );
+            })}
             <div className="flex w-full flex-col gap-4">
               <NavbarButton
                 onClick={() => setIsMobileMenuOpen(false)}
@@ -80,7 +99,7 @@ export function NavbarMain({ children }: { children: React.ReactNode }) {
                 variant="primary"
                 className="w-full"
               >
-                Book a call
+                Register
               </NavbarButton>
             </div>
           </MobileNavMenu>

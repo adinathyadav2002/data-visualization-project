@@ -1,13 +1,39 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
-import { Upload, FileText, BarChart3, TrendingUp, Download, AlertTriangle, Database, Eye } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import DatasetViewer from './DatasetViewer';
+import React, { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
+import {
+  Upload,
+  FileText,
+  BarChart3,
+  TrendingUp,
+  Download,
+  AlertTriangle,
+  Database,
+  Eye,
+} from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import DatasetViewer from "./DatasetViewer";
 
 interface DatasetInfo {
   filename: string;
@@ -15,11 +41,19 @@ interface DatasetInfo {
   columns: { [key: string]: string };
   shape: [number, number];
   preview: any[];
-  summary: { [key: string]: any };
+  summary: { [key: string]: { [key: string]: number } };
   numeric_columns: string[];
   categorical_columns: string[];
-  categorical_data: { [key: string]: Array<{ category: string; count: number }> };
-  missing_values: { [key: string]: { null_count: number; null_percentage: number; total_rows: number } };
+  categorical_data: {
+    [key: string]: Array<{ category: string; count: number }>;
+  };
+  missing_values: {
+    [key: string]: {
+      null_count: number;
+      null_percentage: number;
+      total_rows: number;
+    };
+  };
 }
 
 const DataAnalysis = () => {
@@ -35,10 +69,19 @@ const DataAnalysis = () => {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
     if (selectedFile) {
-      const validTypes = ['text/csv', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
-      const validExtensions = ['.csv', '.xlsx', '.xls'];
-      
-      if (validTypes.includes(selectedFile.type) || validExtensions.some(ext => selectedFile.name.toLowerCase().endsWith(ext))) {
+      const validTypes = [
+        "text/csv",
+        "application/vnd.ms-excel",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      ];
+      const validExtensions = [".csv", ".xlsx", ".xls"];
+
+      if (
+        validTypes.includes(selectedFile.type) ||
+        validExtensions.some((ext) =>
+          selectedFile.name.toLowerCase().endsWith(ext)
+        )
+      ) {
         setFile(selectedFile);
         setDatasetInfo(null);
       } else {
@@ -56,16 +99,16 @@ const DataAnalysis = () => {
 
     setLoading(true);
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append("file", file);
 
     try {
-      const response = await fetch('http://localhost:8000/upload-file', {
-        method: 'POST',
+      const response = await fetch("http://localhost:8000/upload-file", {
+        method: "POST",
         body: formData,
       });
 
       if (!response.ok) {
-        throw new Error('Upload failed');
+        throw new Error("Upload failed");
       }
 
       const data = await response.json();
@@ -75,10 +118,11 @@ const DataAnalysis = () => {
         description: `Dataset analyzed: ${data.shape[0]} rows, ${data.shape[1]} columns`,
       });
     } catch (error) {
-      console.error('Upload error:', error);
+      console.error("Upload error:", error);
       toast({
         title: "Upload failed",
-        description: "Please ensure the backend server is running on localhost:8000",
+        description:
+          "Please ensure the backend server is running on localhost:8000",
         variant: "destructive",
       });
     } finally {
@@ -91,26 +135,30 @@ const DataAnalysis = () => {
 
     setConverting(true);
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append("file", file);
 
     try {
-      const response = await fetch(`http://localhost:8000/convert-file?target_format=${targetFormat}`, {
-        method: 'POST',
-        body: formData,
-      });
+      const response = await fetch(
+        `http://localhost:8000/convert-file?target_format=${targetFormat}`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       if (!response.ok) {
-        throw new Error('Conversion failed');
+        throw new Error("Conversion failed");
       }
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
-      
-      const baseName = file.name.split('.')[0];
-      a.download = targetFormat === 'csv' ? `${baseName}.csv` : `${baseName}.xlsx`;
-      
+
+      const baseName = file.name.split(".")[0];
+      a.download =
+        targetFormat === "csv" ? `${baseName}.csv` : `${baseName}.xlsx`;
+
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
@@ -121,7 +169,7 @@ const DataAnalysis = () => {
         description: `Downloaded as ${a.download}`,
       });
     } catch (error) {
-      console.error('Conversion error:', error);
+      console.error("Conversion error:", error);
       toast({
         title: "Conversion failed",
         description: "Please try again or check the file format",
@@ -137,29 +185,32 @@ const DataAnalysis = () => {
 
     setLoadingFullDataset(true);
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append("file", file);
 
     try {
-      const response = await fetch('http://localhost:8000/upload-file?full_data=true', {
-        method: 'POST',
-        body: formData,
-      });
+      const response = await fetch(
+        "http://localhost:8000/upload-file?full_data=true",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to load full dataset');
+        throw new Error("Failed to load full dataset");
       }
 
       const data = await response.json();
-      
+
       setFullDataset(data.preview);
       setShowDatasetViewer(true);
-      
+
       toast({
         title: "Dataset loaded",
         description: "Opening dataset viewer with full data",
       });
     } catch (error) {
-      console.error('Error loading full dataset:', error);
+      console.error("Error loading full dataset:", error);
       toast({
         title: "Failed to load dataset",
         description: "Please try again or check the server connection",
@@ -170,18 +221,23 @@ const DataAnalysis = () => {
     }
   };
 
-  const prepareCategoricalChartData = (columnData: Array<{ category: string; count: number }>) => {
-    return columnData.map(item => ({
-      category: item.category.length > 15 ? `${item.category.substring(0, 15)}...` : item.category,
-      count: item.count
+  const prepareCategoricalChartData = (
+    columnData: Array<{ category: string; count: number }>
+  ) => {
+    return columnData.map((item) => ({
+      category:
+        item.category.length > 15
+          ? `${item.category.substring(0, 15)}...`
+          : item.category,
+      count: item.count,
     }));
   };
 
   const chartConfig = {
     count: {
-      label: 'Count',
-      color: 'hsl(220, 70%, 50%)'
-    }
+      label: "Count",
+      color: "hsl(220, 70%, 50%)",
+    },
   };
 
   if (showDatasetViewer && datasetInfo) {
@@ -198,8 +254,12 @@ const DataAnalysis = () => {
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6">
       <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
         <div className="text-center mb-6 sm:mb-8">
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">Data Analysis Dashboard</h1>
-          <p className="text-lg sm:text-xl text-gray-600">Upload and analyze your CSV or Excel datasets</p>
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
+            Data Analysis Dashboard
+          </h1>
+          <p className="text-lg sm:text-xl text-gray-600">
+            Upload and analyze your CSV or Excel datasets
+          </p>
         </div>
 
         {/* File Upload Section */}
@@ -225,18 +285,20 @@ const DataAnalysis = () => {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-blue-50 rounded-lg gap-4">
                   <div className="flex items-center gap-2 min-w-0">
                     <FileText className="h-4 w-4 text-blue-600 flex-shrink-0" />
-                    <span className="text-sm font-medium truncate">{file.name}</span>
+                    <span className="text-sm font-medium truncate">
+                      {file.name}
+                    </span>
                     <span className="text-sm text-gray-500 whitespace-nowrap">
                       ({(file.size / 1024).toFixed(1)} KB)
                     </span>
                   </div>
                   <div className="flex gap-2">
-                    <Button 
-                      onClick={uploadFile} 
+                    <Button
+                      onClick={uploadFile}
                       disabled={loading}
                       className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto"
                     >
-                      {loading ? 'Analyzing...' : 'Upload & Analyze'}
+                      {loading ? "Analyzing..." : "Upload & Analyze"}
                     </Button>
                   </div>
                 </div>
@@ -258,16 +320,17 @@ const DataAnalysis = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button 
-                onClick={loadFullDataset} 
+              <Button
+                onClick={loadFullDataset}
                 disabled={loadingFullDataset}
                 className="flex items-center gap-2 w-full sm:w-auto"
               >
                 <Eye className="h-4 w-4" />
-                {loadingFullDataset ? 'Loading...' : 'Open Dataset Viewer'}
+                {loadingFullDataset ? "Loading..." : "Open Dataset Viewer"}
               </Button>
               <p className="text-sm text-gray-600 mt-2">
-                Interactive table with pagination, search, filtering, and column selection
+                Interactive table with pagination, search, filtering, and column
+                selection
               </p>
             </CardContent>
           </Card>
@@ -287,21 +350,27 @@ const DataAnalysis = () => {
             </CardHeader>
             <CardContent>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button 
-                  onClick={() => convertFile('csv')} 
-                  disabled={converting || file.name.toLowerCase().endsWith('.csv')}
+                <Button
+                  onClick={() => convertFile("csv")}
+                  disabled={
+                    converting || file.name.toLowerCase().endsWith(".csv")
+                  }
                   variant="outline"
                   className="w-full sm:w-auto"
                 >
-                  {converting ? 'Converting...' : 'Convert to CSV'}
+                  {converting ? "Converting..." : "Convert to CSV"}
                 </Button>
-                <Button 
-                  onClick={() => convertFile('excel')} 
-                  disabled={converting || file.name.toLowerCase().endsWith('.xlsx') || file.name.toLowerCase().endsWith('.xls')}
+                <Button
+                  onClick={() => convertFile("excel")}
+                  disabled={
+                    converting ||
+                    file.name.toLowerCase().endsWith(".xlsx") ||
+                    file.name.toLowerCase().endsWith(".xls")
+                  }
                   variant="outline"
                   className="w-full sm:w-auto"
                 >
-                  {converting ? 'Converting...' : 'Convert to Excel'}
+                  {converting ? "Converting..." : "Convert to Excel"}
                 </Button>
               </div>
             </CardContent>
@@ -311,7 +380,6 @@ const DataAnalysis = () => {
         {/* Dataset Info Section */}
         {datasetInfo && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-            
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -321,11 +389,26 @@ const DataAnalysis = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  <p><span className="font-semibold">File Type:</span> {datasetInfo.file_type.toUpperCase()}</p>
-                  <p><span className="font-semibold">Rows:</span> {datasetInfo.shape[0]}</p>
-                  <p><span className="font-semibold">Columns:</span> {datasetInfo.shape[1]}</p>
-                  <p><span className="font-semibold">Numeric Cols:</span> {datasetInfo.numeric_columns.length}</p>
-                  <p><span className="font-semibold">Categorical Cols:</span> {datasetInfo.categorical_columns.length}</p>
+                  <p>
+                    <span className="font-semibold">File Type:</span>{" "}
+                    {datasetInfo.file_type.toUpperCase()}
+                  </p>
+                  <p>
+                    <span className="font-semibold">Rows:</span>{" "}
+                    {datasetInfo.shape[0]}
+                  </p>
+                  <p>
+                    <span className="font-semibold">Columns:</span>{" "}
+                    {datasetInfo.shape[1]}
+                  </p>
+                  <p>
+                    <span className="font-semibold">Numeric Cols:</span>{" "}
+                    {datasetInfo.numeric_columns.length}
+                  </p>
+                  <p>
+                    <span className="font-semibold">Categorical Cols:</span>{" "}
+                    {datasetInfo.categorical_columns.length}
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -362,18 +445,24 @@ const DataAnalysis = () => {
                     .filter(([_, info]) => info.null_count > 0)
                     .slice(0, 5)
                     .map(([col, info]) => (
-                    <div key={col} className="text-sm">
-                      <div className="flex justify-between">
-                        <span className="truncate">{col}</span>
-                        <span className="text-red-500">{info.null_count}</span>
+                      <div key={col} className="text-sm">
+                        <div className="flex justify-between">
+                          <span className="truncate">{col}</span>
+                          <span className="text-red-500">
+                            {info.null_count}
+                          </span>
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {info.null_percentage.toFixed(1)}% missing
+                        </div>
                       </div>
-                      <div className="text-xs text-gray-500">
-                        {info.null_percentage.toFixed(1)}% missing
-                      </div>
-                    </div>
-                  ))}
-                  {Object.values(datasetInfo.missing_values).every(info => info.null_count === 0) && (
-                    <p className="text-sm text-green-600">No missing values found!</p>
+                    ))}
+                  {Object.values(datasetInfo.missing_values).every(
+                    (info) => info.null_count === 0
+                  ) && (
+                    <p className="text-sm text-green-600">
+                      No missing values found!
+                    </p>
                   )}
                 </div>
               </CardContent>
@@ -388,9 +477,20 @@ const DataAnalysis = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-1 text-sm">
-                  <p>Data types: {new Set(Object.values(datasetInfo.columns)).size}</p>
-                  <p>Total missing: {Object.values(datasetInfo.missing_values).reduce((sum, info) => sum + info.null_count, 0)}</p>
-                  <p>Total cells: {datasetInfo.shape[0] * datasetInfo.shape[1]}</p>
+                  <p>
+                    Data types:{" "}
+                    {new Set(Object.values(datasetInfo.columns)).size}
+                  </p>
+                  <p>
+                    Total missing:{" "}
+                    {Object.values(datasetInfo.missing_values).reduce(
+                      (sum, info) => sum + info.null_count,
+                      0
+                    )}
+                  </p>
+                  <p>
+                    Total cells: {datasetInfo.shape[0] * datasetInfo.shape[1]}
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -412,7 +512,10 @@ const DataAnalysis = () => {
                   <TableHeader>
                     <TableRow>
                       {Object.keys(datasetInfo.columns).map((col) => (
-                        <TableHead key={col} className="whitespace-nowrap min-w-[100px]">
+                        <TableHead
+                          key={col}
+                          className="whitespace-nowrap min-w-[100px]"
+                        >
                           <div className="truncate">{col}</div>
                         </TableHead>
                       ))}
@@ -422,9 +525,15 @@ const DataAnalysis = () => {
                     {datasetInfo.preview.map((row, index) => (
                       <TableRow key={index}>
                         {Object.keys(datasetInfo.columns).map((col) => (
-                          <TableCell key={col} className="whitespace-nowrap max-w-[150px]">
-                            <div className="truncate" title={row[col]?.toString() || '-'}>
-                              {row[col]?.toString() || '-'}
+                          <TableCell
+                            key={col}
+                            className="whitespace-nowrap max-w-[150px]"
+                          >
+                            <div
+                              className="truncate"
+                              title={row[col]?.toString() || "-"}
+                            >
+                              {row[col]?.toString() || "-"}
                             </div>
                           </TableCell>
                         ))}
@@ -440,77 +549,95 @@ const DataAnalysis = () => {
         {/* Categorical Data Visualization */}
         {datasetInfo && datasetInfo.categorical_columns.length > 0 && (
           <div className="space-y-4 sm:space-y-6">
-            {Object.entries(datasetInfo.categorical_data).map(([column, data]) => (
-              <Card key={column}>
-                <CardHeader>
-                  <CardTitle className="truncate">Categorical Analysis: {column}</CardTitle>
-                  <CardDescription>
-                    Distribution of categories in {column} column
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="w-full h-[300px] sm:h-[400px]">
-                    <ChartContainer config={chartConfig}>
-                      <BarChart data={prepareCategoricalChartData(data)} width="100%" height="100%">
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis 
-                          dataKey="category" 
-                          angle={-45}
-                          textAnchor="end"
-                          height={80}
-                          fontSize={12}
-                        />
-                        <YAxis fontSize={12} />
-                        <ChartTooltip content={<ChartTooltipContent />} />
-                        <Bar dataKey="count" fill={chartConfig.count.color} />
-                      </BarChart>
-                    </ChartContainer>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+            {Object.entries(datasetInfo.categorical_data).map(
+              ([column, data]) => (
+                <Card key={column}>
+                  <CardHeader>
+                    <CardTitle className="truncate">
+                      Categorical Analysis: {column}
+                    </CardTitle>
+                    <CardDescription>
+                      Distribution of categories in {column} column
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="w-full h-[300px] sm:h-[400px]">
+                      <ChartContainer config={chartConfig}>
+                        <BarChart
+                          data={prepareCategoricalChartData(data)}
+                          width="100%"
+                          height="100%"
+                        >
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis
+                            dataKey="category"
+                            angle={-45}
+                            textAnchor="end"
+                            height={80}
+                            fontSize={12}
+                          />
+                          <YAxis fontSize={12} />
+                          <ChartTooltip content={<ChartTooltipContent />} />
+                          <Bar dataKey="count" fill={chartConfig.count.color} />
+                        </BarChart>
+                      </ChartContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+              )
+            )}
           </div>
         )}
 
         {/* Summary Statistics */}
-        {datasetInfo && datasetInfo.summary && Object.keys(datasetInfo.summary).length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Summary Statistics</CardTitle>
-              <CardDescription>
-                Statistical summary of numeric columns
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="whitespace-nowrap">Statistic</TableHead>
-                      {datasetInfo.numeric_columns.map((col) => (
-                        <TableHead key={col} className="whitespace-nowrap min-w-[100px]">
-                          <div className="truncate">{col}</div>
+        {datasetInfo &&
+          datasetInfo.summary &&
+          Object.keys(datasetInfo.summary).length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Summary Statistics</CardTitle>
+                <CardDescription>
+                  Statistical summary of numeric columns
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="whitespace-nowrap">
+                          Statistic
                         </TableHead>
-                      ))}
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {['mean', 'min', 'max', 'std'].map((stat) => (
-                      <TableRow key={stat}>
-                        <TableCell className="font-medium capitalize">{stat}</TableCell>
                         {datasetInfo.numeric_columns.map((col) => (
-                          <TableCell key={col} className="whitespace-nowrap">
-                            {datasetInfo.summary[col]?.[stat]?.toFixed(2) || '-'}
-                          </TableCell>
+                          <TableHead
+                            key={col}
+                            className="whitespace-nowrap min-w-[100px]"
+                          >
+                            <div className="truncate">{col}</div>
+                          </TableHead>
                         ))}
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+                    </TableHeader>
+                    <TableBody>
+                      {["mean", "min", "max", "std"].map((stat) => (
+                        <TableRow key={stat}>
+                          <TableCell className="font-medium capitalize">
+                            {stat}
+                          </TableCell>
+                          {datasetInfo.numeric_columns.map((col) => (
+                            <TableCell key={col} className="whitespace-nowrap">
+                              {datasetInfo.summary[col]?.[stat]?.toFixed(2) ||
+                                "-"}
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
         {/* Missing Values Detailed Table */}
         {datasetInfo && (
@@ -526,36 +653,57 @@ const DataAnalysis = () => {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="whitespace-nowrap">Column</TableHead>
-                      <TableHead className="whitespace-nowrap">Data Type</TableHead>
-                      <TableHead className="whitespace-nowrap">Missing Count</TableHead>
-                      <TableHead className="whitespace-nowrap">Missing %</TableHead>
-                      <TableHead className="whitespace-nowrap">Status</TableHead>
+                      <TableHead className="whitespace-nowrap">
+                        Column
+                      </TableHead>
+                      <TableHead className="whitespace-nowrap">
+                        Data Type
+                      </TableHead>
+                      <TableHead className="whitespace-nowrap">
+                        Missing Count
+                      </TableHead>
+                      <TableHead className="whitespace-nowrap">
+                        Missing %
+                      </TableHead>
+                      <TableHead className="whitespace-nowrap">
+                        Status
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {Object.entries(datasetInfo.missing_values).map(([col, info]) => (
-                      <TableRow key={col}>
-                        <TableCell className="font-medium">
-                          <div className="truncate max-w-[150px]" title={col}>{col}</div>
-                        </TableCell>
-                        <TableCell>{datasetInfo.columns[col]}</TableCell>
-                        <TableCell>{info.null_count}</TableCell>
-                        <TableCell>{info.null_percentage.toFixed(1)}%</TableCell>
-                        <TableCell>
-                          <span className={`px-2 py-1 rounded text-xs whitespace-nowrap ${
-                            info.null_count === 0 
-                              ? 'bg-green-100 text-green-800' 
-                              : info.null_percentage > 50 
-                                ? 'bg-red-100 text-red-800'
-                                : 'bg-yellow-100 text-yellow-800'
-                          }`}>
-                            {info.null_count === 0 ? 'Complete' : 
-                             info.null_percentage > 50 ? 'High Missing' : 'Some Missing'}
-                          </span>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    {Object.entries(datasetInfo.missing_values).map(
+                      ([col, info]) => (
+                        <TableRow key={col}>
+                          <TableCell className="font-medium">
+                            <div className="truncate max-w-[150px]" title={col}>
+                              {col}
+                            </div>
+                          </TableCell>
+                          <TableCell>{datasetInfo.columns[col]}</TableCell>
+                          <TableCell>{info.null_count}</TableCell>
+                          <TableCell>
+                            {info.null_percentage.toFixed(1)}%
+                          </TableCell>
+                          <TableCell>
+                            <span
+                              className={`px-2 py-1 rounded text-xs whitespace-nowrap ${
+                                info.null_count === 0
+                                  ? "bg-green-100 text-green-800"
+                                  : info.null_percentage > 50
+                                  ? "bg-red-100 text-red-800"
+                                  : "bg-yellow-100 text-yellow-800"
+                              }`}
+                            >
+                              {info.null_count === 0
+                                ? "Complete"
+                                : info.null_percentage > 50
+                                ? "High Missing"
+                                : "Some Missing"}
+                            </span>
+                          </TableCell>
+                        </TableRow>
+                      )
+                    )}
                   </TableBody>
                 </Table>
               </div>

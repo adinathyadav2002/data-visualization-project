@@ -1,6 +1,11 @@
-
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Upload, BarChart3, Table, TrendingUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -15,11 +20,12 @@ const Index = () => {
             Data Analysis Platform
           </h1>
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            Upload your CSV files and get instant insights with powerful data analysis tools. 
-            Visualize trends, analyze patterns, and make data-driven decisions.
+            Upload your CSV files and get instant insights with powerful data
+            analysis tools. Visualize trends, analyze patterns, and make
+            data-driven decisions.
           </p>
-          <Button 
-            onClick={() => navigate('/analysis')}
+          <Button
+            onClick={() => navigate("/login")}
             className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 text-lg"
           >
             Start Analyzing Data
@@ -84,21 +90,27 @@ const Index = () => {
                 <span className="text-2xl font-bold text-blue-600">1</span>
               </div>
               <h3 className="text-xl font-semibold mb-2">Upload Your Data</h3>
-              <p className="text-gray-600">Select and upload your CSV file from your computer</p>
+              <p className="text-gray-600">
+                Select and upload your CSV file from your computer
+              </p>
             </div>
             <div className="text-center">
               <div className="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl font-bold text-green-600">2</span>
               </div>
               <h3 className="text-xl font-semibold mb-2">Automatic Analysis</h3>
-              <p className="text-gray-600">Our backend processes your data using Python and Pandas</p>
+              <p className="text-gray-600">
+                Our backend processes your data using Python and Pandas
+              </p>
             </div>
             <div className="text-center">
               <div className="bg-purple-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl font-bold text-purple-600">3</span>
               </div>
               <h3 className="text-xl font-semibold mb-2">View Results</h3>
-              <p className="text-gray-600">Explore charts, tables, and statistical insights</p>
+              <p className="text-gray-600">
+                Explore charts, tables, and statistical insights
+              </p>
             </div>
           </div>
         </div>

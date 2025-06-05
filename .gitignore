@@ -24,3 +24,11 @@ dist-ssr
 *.sw?
 
 /backend/venv
+/backend/**/__pycache__/
+
+# Ignore all .pyc files
+*.pyc
+
+# Also ignore .pyc files in subdirectories
+**/*.pyc
+

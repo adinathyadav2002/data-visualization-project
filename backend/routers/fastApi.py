@@ -5,7 +5,7 @@ from io import StringIO, BytesIO
 from fastapi import FastAPI, UploadFile, File, HTTPException, Query, APIRouter
 
 
-router = APIRouter()
+router = APIRouter(tags=["data_analysis"])
 
 
 @router.get("/")

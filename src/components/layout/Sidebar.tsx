@@ -3,14 +3,13 @@ import React, { useState } from "react";
 import { Sidebar, SidebarBody, SidebarLink } from "../ui/sidebar";
 import { motion } from "framer-motion";
 import { BarChart3, User, Settings, ArrowLeft } from "lucide-react";
-import { Dashboard } from "@/pages/Dashboard";
 
 // Utility function
 const cn = (...classes) => {
   return classes.filter(Boolean).join(" ");
 };
 
-export function SidebarDemo() {
+export function SidebarMain({ children }) {
   const links = [
     {
       label: "Dashboard",
@@ -83,7 +82,7 @@ export function SidebarDemo() {
           </div>
         </SidebarBody>
       </Sidebar>
-      <Dashboard />
+      {children}
     </div>
   );
 }

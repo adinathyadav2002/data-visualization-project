@@ -21,7 +21,14 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  ResponsiveContainer,
+} from "recharts";
 import {
   Upload,
   FileText,
@@ -40,7 +47,7 @@ interface DatasetInfo {
   file_type: string;
   columns: { [key: string]: string };
   shape: [number, number];
-  preview: any[];
+  preview: { [key: string]: string }[];
   summary: { [key: string]: { [key: string]: number } };
   numeric_columns: string[];
   categorical_columns: string[];
@@ -61,7 +68,9 @@ const DataAnalysis = () => {
   const [loading, setLoading] = useState(false);
   const [converting, setConverting] = useState(false);
   const [datasetInfo, setDatasetInfo] = useState<DatasetInfo | null>(null);
-  const [fullDataset, setFullDataset] = useState<any[]>([]);
+  const [fullDataset, setFullDataset] = useState<{ [key: string]: string }[]>(
+    []
+  );
   const [showDatasetViewer, setShowDatasetViewer] = useState(false);
   const [loadingFullDataset, setLoadingFullDataset] = useState(false);
   const { toast } = useToast();
@@ -102,7 +111,7 @@ const DataAnalysis = () => {
     formData.append("file", file);
 
     try {
-      const response = await fetch("http://localhost:8000/upload-file", {
+      const response = await fetch("http://localhost:8000/data/upload-file", {
         method: "POST",
         body: formData,
       });
@@ -139,7 +148,7 @@ const DataAnalysis = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:8000/convert-file?target_format=${targetFormat}`,
+        `http://localhost:8000/data/convert-file?target_format=${targetFormat}`,
         {
           method: "POST",
           body: formData,
@@ -189,7 +198,7 @@ const DataAnalysis = () => {
 
     try {
       const response = await fetch(
-        "http://localhost:8000/upload-file?full_data=true",
+        "http://localhost:8000/data/upload-file?full_data=true",
         {
           method: "POST",
           body: formData,
@@ -229,6 +238,7 @@ const DataAnalysis = () => {
         item.category.length > 15
           ? `${item.category.substring(0, 15)}...`
           : item.category,
+      fullCategory: item.category,
       count: item.count,
     }));
   };
@@ -242,16 +252,23 @@ const DataAnalysis = () => {
 
   if (showDatasetViewer && datasetInfo) {
     return (
-      <DatasetViewer
-        data={fullDataset}
-        columns={datasetInfo.columns}
-        onBack={() => setShowDatasetViewer(false)}
-      />
+      <div className=" w-full bg-gray-50 p-4">
+        <Card>
+          <CardHeader></CardHeader>
+          <CardContent>
+            <DatasetViewer
+              data={fullDataset}
+              columns={datasetInfo.columns}
+              onBack={() => setShowDatasetViewer(false)}
+            />
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 sm:p-6">
+    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 w-full">
       <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
         <div className="text-center mb-6 sm:mb-8">
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
@@ -561,12 +578,16 @@ const DataAnalysis = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="w-full h-[300px] sm:h-[400px]">
-                      <ChartContainer config={chartConfig}>
+                    <div className="w-full h-[400px]">
+                      <ResponsiveContainer width="100%" height="100%">
                         <BarChart
                           data={prepareCategoricalChartData(data)}
-                          width="100%"
-                          height="100%"
+                          margin={{
+                            top: 20,
+                            right: 30,
+                            left: 20,
+                            bottom: 80,
+                          }}
                         >
                           <CartesianGrid strokeDasharray="3 3" />
                           <XAxis
@@ -575,12 +596,34 @@ const DataAnalysis = () => {
                             textAnchor="end"
                             height={80}
                             fontSize={12}
+                            interval={0}
                           />
                           <YAxis fontSize={12} />
-                          <ChartTooltip content={<ChartTooltipContent />} />
-                          <Bar dataKey="count" fill={chartConfig.count.color} />
+                          <ChartTooltip
+                            content={({ active, payload, label }) => {
+                              if (active && payload && payload.length) {
+                                const data = payload[0].payload;
+                                return (
+                                  <div className="bg-white p-3 border rounded shadow">
+                                    <p className="font-medium">
+                                      {data.fullCategory}
+                                    </p>
+                                    <p className="text-blue-600">
+                                      Count: {payload[0].value}
+                                    </p>
+                                  </div>
+                                );
+                              }
+                              return null;
+                            }}
+                          />
+                          <Bar
+                            dataKey="count"
+                            fill={chartConfig.count.color}
+                            radius={[4, 4, 0, 0]}
+                          />
                         </BarChart>
-                      </ChartContainer>
+                      </ResponsiveContainer>
                     </div>
                   </CardContent>
                 </Card>

@@ -6,10 +6,10 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import DataAnalysis from "./pages/DataAnalysis";
 import NotFound from "./pages/NotFound";
-import { Dashboard } from "./pages/Dashboard";
 import { NavbarMain } from "./components/layout/NavbarMain";
 import { SignupForm } from "./pages/SignupForm";
 import SigninForm from "./pages/SignInForm";
+import { SidebarMain } from "./components/layout/Sidebar";
 
 const queryClient = new QueryClient();
 
@@ -30,8 +30,8 @@ const App = () => (
             element={<NavbarMain children={<SigninForm />} />}
           />
           <Route
-            path="/dashboard"
-            element={<Dashboard children={<DataAnalysis />} />}
+            path="/analysis"
+            element={<SidebarMain children={<DataAnalysis />} />}
           />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

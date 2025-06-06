@@ -1,15 +1,47 @@
-
-import React, { useState, useMemo } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
-import { Search, Filter, Columns, Eye, EyeOff } from 'lucide-react';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuCheckboxItem } from '@/components/ui/dropdown-menu';
-import { useToast } from '@/hooks/use-toast';
+import React, { useState, useMemo } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import { Search, Filter, Columns, Eye, EyeOff } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  DropdownMenuCheckboxItem,
+} from "@/components/ui/dropdown-menu";
+import { useToast } from "@/hooks/use-toast";
 
 interface DatasetRow {
   [key: string]: any;
@@ -21,30 +53,42 @@ interface DatasetViewerProps {
   onBack: () => void;
 }
 
-const DatasetViewer: React.FC<DatasetViewerProps> = ({ data, columns, onBack }) => {
+const DatasetViewer: React.FC<DatasetViewerProps> = ({
+  data,
+  columns,
+  onBack,
+}) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [columnFilters, setColumnFilters] = useState<{ [key: string]: string }>({});
-  const [visibleColumns, setVisibleColumns] = useState<string[]>(Object.keys(columns));
-  const [sortColumn, setSortColumn] = useState<string>('');
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [columnFilters, setColumnFilters] = useState<{ [key: string]: string }>(
+    {}
+  );
+  const [visibleColumns, setVisibleColumns] = useState<string[]>(
+    Object.keys(columns)
+  );
+  const [sortColumn, setSortColumn] = useState<string>("");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const { toast } = useToast();
 
   // Filter data based on search and column filters
   const filteredData = useMemo(() => {
-    return data.filter(row => {
+    return data.filter((row) => {
       // Global search
-      const matchesSearch = searchTerm === '' || Object.values(row).some(value => 
-        value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
-      );
+      const matchesSearch =
+        searchTerm === "" ||
+        Object.values(row).some((value) =>
+          value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
+        );
 
       // Column filters
-      const matchesFilters = Object.entries(columnFilters).every(([column, filterValue]) => {
-        if (!filterValue) return true;
-        const cellValue = row[column]?.toString().toLowerCase() || '';
-        return cellValue.includes(filterValue.toLowerCase());
-      });
+      const matchesFilters = Object.entries(columnFilters).every(
+        ([column, filterValue]) => {
+          if (!filterValue) return true;
+          const cellValue = row[column]?.toString().toLowerCase() || "";
+          return cellValue.includes(filterValue.toLowerCase());
+        }
+      );
 
       return matchesSearch && matchesFilters;
     });
@@ -62,13 +106,13 @@ const DatasetViewer: React.FC<DatasetViewerProps> = ({ data, columns, onBack }) 
       if (bValue === null || bValue === undefined) return -1;
 
       let comparison = 0;
-      if (typeof aValue === 'number' && typeof bValue === 'number') {
+      if (typeof aValue === "number" && typeof bValue === "number") {
         comparison = aValue - bValue;
       } else {
         comparison = aValue.toString().localeCompare(bValue.toString());
       }
 
-      return sortDirection === 'asc' ? comparison : -comparison;
+      return sortDirection === "asc" ? comparison : -comparison;
     });
   }, [filteredData, sortColumn, sortDirection]);
 
@@ -82,33 +126,33 @@ const DatasetViewer: React.FC<DatasetViewerProps> = ({ data, columns, onBack }) 
 
   const handleSort = (column: string) => {
     if (sortColumn === column) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
     } else {
       setSortColumn(column);
-      setSortDirection('asc');
+      setSortDirection("asc");
     }
   };
 
   const handleColumnFilter = (column: string, value: string) => {
-    setColumnFilters(prev => ({
+    setColumnFilters((prev) => ({
       ...prev,
-      [column]: value
+      [column]: value,
     }));
     setCurrentPage(1); // Reset to first page when filtering
   };
 
   const toggleColumnVisibility = (column: string) => {
-    setVisibleColumns(prev => 
-      prev.includes(column) 
-        ? prev.filter(col => col !== column)
+    setVisibleColumns((prev) =>
+      prev.includes(column)
+        ? prev.filter((col) => col !== column)
         : [...prev, column]
     );
   };
 
   const clearAllFilters = () => {
-    setSearchTerm('');
+    setSearchTerm("");
     setColumnFilters({});
-    setSortColumn('');
+    setSortColumn("");
     setCurrentPage(1);
     toast({
       title: "Filters cleared",
@@ -117,7 +161,9 @@ const DatasetViewer: React.FC<DatasetViewerProps> = ({ data, columns, onBack }) 
   };
 
   const getUniqueValues = (column: string) => {
-    const values = data.map(row => row[column]).filter(val => val !== null && val !== undefined);
+    const values = data
+      .map((row) => row[column])
+      .filter((val) => val !== null && val !== undefined);
     return [...new Set(values)].slice(0, 20); // Limit to 20 unique values for performance
   };
 
@@ -127,12 +173,18 @@ const DatasetViewer: React.FC<DatasetViewerProps> = ({ data, columns, onBack }) 
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Dataset Viewer</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+              Dataset Viewer
+            </h1>
             <p className="text-gray-600">
               Showing {sortedData.length} of {data.length} rows
             </p>
           </div>
-          <Button onClick={onBack} variant="outline" className="w-full sm:w-auto">
+          <Button
+            onClick={onBack}
+            variant="outline"
+            className="w-full sm:w-auto"
+          >
             Back to Analysis
           </Button>
         </div>
@@ -149,7 +201,9 @@ const DatasetViewer: React.FC<DatasetViewerProps> = ({ data, columns, onBack }) 
             <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-end">
               {/* Global Search */}
               <div className="flex-1 min-w-0">
-                <label className="block text-sm font-medium mb-2">Search all columns</label>
+                <label className="block text-sm font-medium mb-2">
+                  Search all columns
+                </label>
                 <Input
                   placeholder="Search across all data..."
                   value={searchTerm}
@@ -160,8 +214,13 @@ const DatasetViewer: React.FC<DatasetViewerProps> = ({ data, columns, onBack }) 
 
               {/* Page Size */}
               <div className="w-full sm:w-32">
-                <label className="block text-sm font-medium mb-2">Rows per page</label>
-                <Select value={pageSize.toString()} onValueChange={(value) => setPageSize(Number(value))}>
+                <label className="block text-sm font-medium mb-2">
+                  Rows per page
+                </label>
+                <Select
+                  value={pageSize.toString()}
+                  onValueChange={(value) => setPageSize(Number(value))}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -177,7 +236,10 @@ const DatasetViewer: React.FC<DatasetViewerProps> = ({ data, columns, onBack }) 
               {/* Column Visibility */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="flex items-center gap-2 w-full sm:w-auto">
+                  <Button
+                    variant="outline"
+                    className="flex items-center gap-2 w-full sm:w-auto"
+                  >
                     <Columns className="h-4 w-4" />
                     Columns ({visibleColumns.length})
                   </Button>
@@ -198,7 +260,11 @@ const DatasetViewer: React.FC<DatasetViewerProps> = ({ data, columns, onBack }) 
               </DropdownMenu>
 
               {/* Clear Filters */}
-              <Button onClick={clearAllFilters} variant="outline" className="w-full sm:w-auto">
+              <Button
+                onClick={clearAllFilters}
+                variant="outline"
+                className="w-full sm:w-auto"
+              >
                 Clear All
               </Button>
             </div>
@@ -217,11 +283,19 @@ const DatasetViewer: React.FC<DatasetViewerProps> = ({ data, columns, onBack }) 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {visibleColumns.map((column) => (
                 <div key={column} className="space-y-2">
-                  <label className="block text-sm font-medium truncate">{column}</label>
-                  {columns[column] === 'object' && getUniqueValues(column).length <= 20 ? (
+                  <label className="block text-sm font-medium truncate">
+                    {column}
+                  </label>
+                  {columns[column] === "object" &&
+                  getUniqueValues(column).length <= 20 ? (
                     <Select
-                      value={columnFilters[column] || ''}
-                      onValueChange={(value) => handleColumnFilter(column, value === 'all-values' ? '' : value)}
+                      value={columnFilters[column] || ""}
+                      onValueChange={(value) =>
+                        handleColumnFilter(
+                          column,
+                          value === "all-values" ? "" : value
+                        )
+                      }
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="All values" />
@@ -229,7 +303,10 @@ const DatasetViewer: React.FC<DatasetViewerProps> = ({ data, columns, onBack }) 
                       <SelectContent className="bg-white border shadow-lg z-50">
                         <SelectItem value="all-values">All values</SelectItem>
                         {getUniqueValues(column).map((value, index) => (
-                          <SelectItem key={`${column}-${index}`} value={value.toString()}>
+                          <SelectItem
+                            key={`${column}-${index}`}
+                            value={value.toString()}
+                          >
                             {value.toString()}
                           </SelectItem>
                         ))}
@@ -238,8 +315,10 @@ const DatasetViewer: React.FC<DatasetViewerProps> = ({ data, columns, onBack }) 
                   ) : (
                     <Input
                       placeholder={`Filter ${column}...`}
-                      value={columnFilters[column] || ''}
-                      onChange={(e) => handleColumnFilter(column, e.target.value)}
+                      value={columnFilters[column] || ""}
+                      onChange={(e) =>
+                        handleColumnFilter(column, e.target.value)
+                      }
                     />
                   )}
                 </div>
@@ -253,7 +332,8 @@ const DatasetViewer: React.FC<DatasetViewerProps> = ({ data, columns, onBack }) 
           <CardHeader>
             <CardTitle>Dataset ({paginatedData.length} rows shown)</CardTitle>
             <CardDescription>
-              Click column headers to sort. Use filters above to narrow down results.
+              Click column headers to sort. Use filters above to narrow down
+              results.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -262,8 +342,8 @@ const DatasetViewer: React.FC<DatasetViewerProps> = ({ data, columns, onBack }) 
                 <TableHeader>
                   <TableRow>
                     {visibleColumns.map((column) => (
-                      <TableHead 
-                        key={column} 
+                      <TableHead
+                        key={column}
                         className="cursor-pointer hover:bg-gray-100 whitespace-nowrap min-w-[100px]"
                         onClick={() => handleSort(column)}
                       >
@@ -271,7 +351,7 @@ const DatasetViewer: React.FC<DatasetViewerProps> = ({ data, columns, onBack }) 
                           <span className="truncate">{column}</span>
                           {sortColumn === column && (
                             <span className="text-xs">
-                              {sortDirection === 'asc' ? '↑' : '↓'}
+                              {sortDirection === "asc" ? "↑" : "↓"}
                             </span>
                           )}
                         </div>
@@ -283,9 +363,15 @@ const DatasetViewer: React.FC<DatasetViewerProps> = ({ data, columns, onBack }) 
                   {paginatedData.map((row, index) => (
                     <TableRow key={index}>
                       {visibleColumns.map((column) => (
-                        <TableCell key={column} className="whitespace-nowrap max-w-[200px]">
-                          <div className="truncate" title={row[column]?.toString() || '-'}>
-                            {row[column]?.toString() || '-'}
+                        <TableCell
+                          key={column}
+                          className="whitespace-nowrap max-w-[200px]"
+                        >
+                          <div
+                            className="truncate"
+                            title={row[column]?.toString() || "-"}
+                          >
+                            {row[column]?.toString() || "-"}
                           </div>
                         </TableCell>
                       ))}
@@ -304,14 +390,22 @@ const DatasetViewer: React.FC<DatasetViewerProps> = ({ data, columns, onBack }) 
               <Pagination>
                 <PaginationContent className="flex-wrap gap-1">
                   <PaginationItem>
-                    <PaginationPrevious 
-                      onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                      className={`${currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'} select-none`}
+                    <PaginationPrevious
+                      onClick={() =>
+                        setCurrentPage(Math.max(1, currentPage - 1))
+                      }
+                      className={`${
+                        currentPage === 1
+                          ? "pointer-events-none opacity-50"
+                          : "cursor-pointer"
+                      } select-none`}
                     />
                   </PaginationItem>
-                  
+
                   {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                    const page = Math.max(1, Math.min(totalPages - 4, currentPage - 2)) + i;
+                    const page =
+                      Math.max(1, Math.min(totalPages - 4, currentPage - 2)) +
+                      i;
                     return (
                       <PaginationItem key={page}>
                         <PaginationLink
@@ -324,24 +418,31 @@ const DatasetViewer: React.FC<DatasetViewerProps> = ({ data, columns, onBack }) 
                       </PaginationItem>
                     );
                   })}
-                  
+
                   {totalPages > 5 && currentPage < totalPages - 2 && (
                     <PaginationItem>
                       <PaginationEllipsis />
                     </PaginationItem>
                   )}
-                  
+
                   <PaginationItem>
-                    <PaginationNext 
-                      onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                      className={`${currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'} select-none`}
+                    <PaginationNext
+                      onClick={() =>
+                        setCurrentPage(Math.min(totalPages, currentPage + 1))
+                      }
+                      className={`${
+                        currentPage === totalPages
+                          ? "pointer-events-none opacity-50"
+                          : "cursor-pointer"
+                      } select-none`}
                     />
                   </PaginationItem>
                 </PaginationContent>
               </Pagination>
-              
+
               <div className="text-center mt-4 text-sm text-gray-600">
-                Page {currentPage} of {totalPages} ({sortedData.length} total results)
+                Page {currentPage} of {totalPages} ({sortedData.length} total
+                results)
               </div>
             </CardContent>
           </Card>

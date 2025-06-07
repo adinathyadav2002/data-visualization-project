@@ -5,7 +5,7 @@ from io import StringIO, BytesIO
 from fastapi import FastAPI, UploadFile, File, HTTPException, Query, APIRouter
 
 
-router = APIRouter(tags=["data_analysis"])
+router = APIRouter()
 
 
 @router.get("/")
@@ -174,3 +174,68 @@ async def get_full_dataset(file: UploadFile = File(...)):
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Error processing file: {str(e)}")
+
+
+@router.post("/convert-file")
+async def convert_file(
+    file: UploadFile = File(...),
+    output_format: str = Query(
+        "csv", description="Output format: 'csv' or 'excel'")
+):
+    """
+    Convert uploaded CSV/Excel file to CSV or Excel format.
+    Returns the converted file as a downloadable response.
+    """
+
+    valid_extensions = ['.csv', '.xlsx', '.xls']
+    filename = file.filename.lower()
+
+    if not any(filename.endswith(ext) for ext in valid_extensions):
+        raise HTTPException(
+            status_code=400,
+            detail="Unsupported file type. Only .csv, .xls, .xlsx are allowed."
+        )
+
+    try:
+        content = await file.read()
+
+        # Read input file into a DataFrame
+        if filename.endswith('.csv'):
+            df = pd.read_csv(StringIO(content.decode('utf-8')))
+        else:
+            df = pd.read_excel(BytesIO(content))
+
+        # Prepare output buffer
+        output_buffer = BytesIO()
+        base_name = file.filename.rsplit('.', 1)[0]
+
+        if output_format == 'csv':
+            df.to_csv(output_buffer, index=False)
+            media_type = "text/csv"
+            extension = "csv"
+        elif output_format == 'excel':
+            with pd.ExcelWriter(output_buffer, engine='openpyxl') as writer:
+                df.to_excel(writer, index=False)
+            media_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            extension = "xlsx"
+        else:
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid output format. Must be 'csv' or 'excel'."
+            )
+
+        output_buffer.seek(0)
+
+        return StreamingResponse(
+            output_buffer,
+            media_type=media_type,
+            headers={
+                "Content-Disposition": f"attachment; filename={base_name}.{extension}"
+            }
+        )
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to process file: {str(e)}"
+        )

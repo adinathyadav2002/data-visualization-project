@@ -111,10 +111,14 @@ const DataAnalysis = () => {
     formData.append("file", file);
 
     try {
-      const response = await fetch("http://localhost:8000/data/upload-file", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}data/upload-file`,
+        {
+          method: "POST",
+
+          body: formData,
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Upload failed");
@@ -130,8 +134,9 @@ const DataAnalysis = () => {
       console.error("Upload error:", error);
       toast({
         title: "Upload failed",
-        description:
-          "Please ensure the backend server is running on localhost:8000",
+        description: `Please ensure the backend server is running on ${
+          import.meta.env.VITE_BACKEND_URL
+        } and try again.`,
         variant: "destructive",
       });
     } finally {
@@ -140,6 +145,7 @@ const DataAnalysis = () => {
   };
 
   const convertFile = async (targetFormat: string) => {
+    console.log(targetFormat);
     if (!file) return;
 
     setConverting(true);
@@ -148,7 +154,9 @@ const DataAnalysis = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:8000/data/convert-file?target_format=${targetFormat}`,
+        `${
+          import.meta.env.VITE_BACKEND_URL
+        }data/convert-file?output_format=${targetFormat}`,
         {
           method: "POST",
           body: formData,
@@ -198,7 +206,7 @@ const DataAnalysis = () => {
 
     try {
       const response = await fetch(
-        "http://localhost:8000/data/upload-file?full_data=true",
+        `${import.meta.env.VITE_BACKEND_URL}data/upload-file?full_data=true`,
         {
           method: "POST",
           body: formData,
@@ -270,8 +278,8 @@ const DataAnalysis = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 w-full">
       <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
-        <div className="text-center mb-6 sm:mb-8">
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
+        <div className=" mb-6 sm:mb-8">
+          <h1 className="text-3xl sm:text-2xl font-bold text-gray-900 mb-2">
             Data Analysis Dashboard
           </h1>
           <p className="text-lg sm:text-xl text-gray-600">

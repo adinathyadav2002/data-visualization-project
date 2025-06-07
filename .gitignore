@@ -32,3 +32,5 @@ dist-ssr
 # Also ignore .pyc files in subdirectories
 **/*.pyc
 
+# Environment variables
+.env

@@ -2,6 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from schemas import User, UserResponse
 from models import User as UserModel
 from database import session, SessionLocal
+from utility.hashing import Hash
+
+
 router = APIRouter()
 
 
@@ -36,12 +39,14 @@ async def create_user(request: User, db: session = Depends(get_db)):
         raise HTTPException(
             status_code=400, detail="Email already registered")
 
+    hashed_password = Hash.bcrypt(request.password)
     new_user = UserModel(
         first_name=request.first_name,
         last_name=request.last_name,
         email=request.email,
-        password=request.password
+        password=hashed_password
     )
+
     db.add(new_user)
     db.commit()
     db.refresh(new_user)

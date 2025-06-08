@@ -1,8 +1,14 @@
 import { EyeOff } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { loginUser } from "@/api/auth";
+import Cookie from "js-cookie";
+import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 export default function SigninForm() {
+  const { toast } = useToast();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: "",
     password: "",
@@ -18,10 +24,32 @@ export default function SigninForm() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
-    // Handle form submission logic here
+
+    try {
+      const token = await loginUser(formData.username, formData.password);
+      if (formData.rememberMe) {
+        // Store token in cookies with expiration
+        Cookie.set("access_token", token, { expires: 7 }); // Store for 7 days
+      } else {
+        // Store token in session cookies (expires when browser closes)
+        Cookie.set("access_token", token); // Session cookie
+      }
+      toast({
+        title: "Login Successful",
+        description: "You have successfully logged in.",
+        variant: "success",
+      });
+      navigate("/analysis");
+    } catch (error) {
+      toast({
+        title: "Login Failed",
+        description: "Please check your credentials.",
+        variant: "destructive",
+      });
+      console.error("Login failed:", error);
+    }
   };
 
   const togglePasswordVisibility = () => {
@@ -29,7 +57,7 @@ export default function SigninForm() {
   };
 
   return (
-    <div className="h-full flex flex-col items-center justify-center bg-gray-50">
+    <div className="h-full flex flex-col items-center justify-center md:pt-6">
       <div className="py-6 px-4 w-full">
         <div className="grid lg:grid-cols-2 items-center gap-6 max-w-6xl w-full mx-auto">
           <div className="border border-slate-300 rounded-lg p-6 max-w-md shadow-[0_2px_22px_-4px_rgba(93,96,127,0.2)] max-lg:mx-auto bg-white">

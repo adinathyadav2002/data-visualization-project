@@ -21,7 +21,7 @@ export function NavbarMain({ children }: { children: React.ReactNode }) {
     },
     {
       name: "Github",
-      href: "https://github.com",
+      href: "https://github.com/adinathyadav2002/data-visualization-project",
     },
     {
       name: "Contact",

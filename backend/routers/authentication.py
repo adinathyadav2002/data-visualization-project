@@ -4,7 +4,7 @@ from fastapi import Depends, UploadFile, File, HTTPException, Query, APIRouter
 from models import User as UserModel
 from schemas import UserAuthDetails
 from sqlalchemy import or_
-from utility.jwt import jwt
+from utility.jwt import jwtTokenManager as jwtM
 from setting.config import settings
 
 
@@ -27,8 +27,7 @@ def login(request: UserAuthDetails, db: session = Depends(get_db)):
     """
 
     # Find user from database
-    user = db.query(UserModel).filter(or_(UserModel.email ==
-                                          request.email, UserModel.userName == request.userName)).first()
+    user = db.query(UserModel).filter(UserModel.email == request.email).first()
 
     # Check if user exists and password matches
     if not user:
@@ -38,6 +37,7 @@ def login(request: UserAuthDetails, db: session = Depends(get_db)):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     # If user exists and password matches, return success message with jwt token
-    token = jwt.create_jwt_token(
+    token = jwtM.create_jwt_token(
         user.id, settings.jwt_secret_key, algorithm=settings.jwt_algorithm)
+
     return {"message": "Login successful", "token": token}

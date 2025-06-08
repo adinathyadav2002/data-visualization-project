@@ -18,9 +18,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(fast_api_router, prefix="/data", tags=["fastapi"])
-app.include_router(user_router, prefix="/users", tags=["users"])
-app.include_router(auth_router, prefix="/auth", tags=["authentication"])
+app.include_router(fast_api_router, prefix="/api/data", tags=["fastapi"])
+app.include_router(user_router, prefix="/api/users", tags=["users"])
+app.include_router(auth_router, prefix="/api/auth", tags=["authentication"])
 
 # Create database tables
 Base.metadata.create_all(engine)

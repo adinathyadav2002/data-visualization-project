@@ -11,4 +11,5 @@ pydantic==2.8.0
 mysqlclient==2.1.1
 passlib[bcrypt]==1.7.4
 python-dotenv
+PyJWT
 

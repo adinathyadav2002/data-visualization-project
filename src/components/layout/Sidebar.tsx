@@ -34,7 +34,6 @@ export function SidebarMain({ children }) {
     },
     {
       label: "Logout",
-      to: "/",
       onclick: () => {
         // Handle logout logic here
         console.log("Logout clicked");

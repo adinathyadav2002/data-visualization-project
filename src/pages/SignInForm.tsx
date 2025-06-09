@@ -1,20 +1,29 @@
 import { EyeOff } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { loginUser } from "@/api/auth";
 import Cookie from "js-cookie";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { useUserContext } from "@/context/user";
 
 export default function SigninForm() {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { userData, isAuthenticated, login } = useUserContext();
   const [formData, setFormData] = useState({
     username: "",
     password: "",
     rememberMe: false,
   });
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    // If user is already authenticated, redirect to analysis page
+    if (isAuthenticated) {
+      navigate("/analysis");
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -36,11 +45,14 @@ export default function SigninForm() {
         // Store token in session cookies (expires when browser closes)
         Cookie.set("access_token", token); // Session cookie
       }
+
       toast({
         title: "Login Successful",
         description: "You have successfully logged in.",
         variant: "success",
       });
+
+      login();
       navigate("/analysis");
     } catch (error) {
       toast({

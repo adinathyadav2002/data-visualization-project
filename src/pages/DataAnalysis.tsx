@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -16,11 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
+import { ChartTooltip } from "@/components/ui/chart";
 import {
   BarChart,
   Bar,
@@ -41,6 +37,10 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import DatasetViewer from "./DatasetViewer";
+import Cookie from "js-cookie";
+import { useNavigate } from "react-router-dom";
+import { useUserContext } from "@/context/user";
+import { verifyUserByToken } from "@/api/auth";
 
 interface DatasetInfo {
   filename: string;
@@ -74,6 +74,35 @@ const DataAnalysis = () => {
   const [showDatasetViewer, setShowDatasetViewer] = useState(false);
   const [loadingFullDataset, setLoadingFullDataset] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const { isAuthenticated } = useUserContext();
+
+  // Ensure the user is authenticated before accessing this page
+  useEffect(() => {
+    // check if the user is verified using jwt token
+    const verifyUser = async () => {
+      const token = Cookie.get("access_token");
+
+      if (!token) {
+        toast({
+          title: "Unauthorized",
+          description: "Please login to access the data analysis features.",
+          variant: "destructive",
+        });
+        navigate("/login");
+      }
+
+      if (!isAuthenticated) {
+        try {
+          await verifyUserByToken(token);
+        } catch (error) {
+          console.error("Verification error:", error);
+          navigate("/login");
+        }
+      }
+    };
+    verifyUser();
+  }, []);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];

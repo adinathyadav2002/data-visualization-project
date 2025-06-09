@@ -30,3 +30,20 @@ export const registerUser = async (formdata) => {
     throw error;
   }
 };
+
+export const getUserProfile = async (token) => {
+  try {
+    const response = await axios.get(
+      `${import.meta.env.VITE_BACKEND_URL}api/users/profile`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching user profile:", error);
+    throw error;
+  }
+};

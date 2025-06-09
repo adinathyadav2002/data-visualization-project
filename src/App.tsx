@@ -10,6 +10,7 @@ import { NavbarMain } from "./components/layout/NavbarMain";
 import { SignupForm } from "./pages/SignupForm";
 import SigninForm from "./pages/SignInForm";
 import { SidebarMain } from "./components/layout/Sidebar";
+import { LoginProvider } from "./context/user";
 
 const queryClient = new QueryClient();
 
@@ -18,25 +19,27 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<NavbarMain children={<Index />} />} />
-          <Route
-            path="/register"
-            element={<NavbarMain children={<SignupForm />} />}
-          />
-          <Route
-            path="/login"
-            element={<NavbarMain children={<SigninForm />} />}
-          />
-          <Route
-            path="/analysis"
-            element={<SidebarMain children={<DataAnalysis />} />}
-          />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      <LoginProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<NavbarMain children={<Index />} />} />
+            <Route
+              path="/register"
+              element={<NavbarMain children={<SignupForm />} />}
+            />
+            <Route
+              path="/login"
+              element={<NavbarMain children={<SigninForm />} />}
+            />
+            <Route
+              path="/analysis"
+              element={<SidebarMain children={<DataAnalysis />} />}
+            />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </LoginProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

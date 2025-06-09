@@ -13,28 +13,32 @@ export function SidebarMain({ children }) {
   const links = [
     {
       label: "Dashboard",
-      href: "#",
+      to: "#",
       icon: (
         <BarChart3 className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
     },
     {
       label: "Profile",
-      href: "#",
+      to: "/profile",
       icon: (
         <User className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
     },
     {
       label: "Settings",
-      href: "#",
+      to: "/settings",
       icon: (
         <Settings className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
     },
     {
       label: "Logout",
-      href: "#",
+      to: "/",
+      onclick: () => {
+        // Handle logout logic here
+        console.log("Logout clicked");
+      },
       icon: (
         <ArrowLeft className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
@@ -57,14 +61,14 @@ export function SidebarMain({ children }) {
               <Logo />
             </>
             <div className="mt-8 flex flex-col gap-2">
-              {links.map((link, idx) => (
-                <SidebarLink key={idx} link={link} className="" />
+              {links.map((linkItem, idx) => (
+                <SidebarLink key={idx} linkItem={linkItem} className="" />
               ))}
             </div>
           </div>
           <div>
             <SidebarLink
-              link={{
+              linkItem={{
                 label: "Manu Arora",
                 href: "#",
                 icon: (

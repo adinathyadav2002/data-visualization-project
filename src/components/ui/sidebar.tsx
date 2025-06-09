@@ -2,6 +2,7 @@
 import React, { useState, createContext, useContext } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
+import { Link } from "react-router-dom";
 
 // Utility function
 const cn = (...classes) => {
@@ -147,32 +148,33 @@ export const MobileSidebar = ({ className, children, ...props }) => {
   );
 };
 
-export const SidebarLink = ({ link, className, ...props }) => {
+export const SidebarLink = ({ linkItem, className, ...props }) => {
   const { open, animate } = useSidebar();
   return (
-    <a
-      href={link.href}
-      className={cn(
-        "flex items-center justify-start gap-2 group/sidebar py-2 px-2 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-all duration-200 cursor-pointer",
-        className
+    <>
+      {linkItem.to && (
+        <Link
+          to={linkItem.to}
+          className={cn(
+            "flex items-center space-x-2 p-2 rounded-md text-neutral-800 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors",
+            className,
+            {
+              "w-full justify-center": !open && animate,
+              "justify-start": open || !animate,
+            }
+          )}
+          {...props}
+        />
       )}
-      {...props}
-    >
-      <div className="flex-shrink-0">{link.icon}</div>
 
-      <motion.span
-        animate={{
-          display: animate ? (open ? "inline-block" : "none") : "inline-block",
-          opacity: animate ? (open ? 1 : 0) : 1,
-        }}
-        transition={{
-          duration: 0.3,
-          ease: "easeInOut",
-        }}
-        className="text-neutral-700 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0"
-      >
-        {link.label}
-      </motion.span>
-    </a>
+      {linkItem.onclick && (
+        <button
+          onClick={linkItem.onclick}
+          className="flex items-center space-x-2 p-2 rounded-md text-neutral-800 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
+        >
+          <span>Logout</span>
+        </button>
+      )}
+    </>
   );
 };

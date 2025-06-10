@@ -3,6 +3,9 @@ import React, { useState } from "react";
 import { Sidebar, SidebarBody, SidebarLink } from "../ui/sidebar";
 import { motion } from "framer-motion";
 import { BarChart3, User, Settings, ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { logoutUser } from "@/api/auth";
+import { useUserContext } from "@/context/user";
 
 // Utility function
 const cn = (...classes) => {
@@ -10,10 +13,12 @@ const cn = (...classes) => {
 };
 
 export function SidebarMain({ children }) {
+  const navigate = useNavigate();
+  const { isAuthenticated, logout } = useUserContext();
   const links = [
     {
       label: "Dashboard",
-      to: "#",
+      to: "/dashboard",
       icon: (
         <BarChart3 className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
@@ -25,18 +30,19 @@ export function SidebarMain({ children }) {
         <User className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
     },
-    {
-      label: "Settings",
-      to: "/settings",
-      icon: (
-        <Settings className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
-      ),
-    },
+    // {
+    //   label: "Settings",
+    //   to: "/settings",
+    //   icon: (
+    //     <Settings className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
+    //   ),
+    // },
     {
       label: "Logout",
       onclick: () => {
-        // Handle logout logic here
-        console.log("Logout clicked");
+        logoutUser();
+        logout();
+        navigate("/login");
       },
       icon: (
         <ArrowLeft className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
@@ -68,16 +74,10 @@ export function SidebarMain({ children }) {
           <div>
             <SidebarLink
               linkItem={{
-                label: "Manu Arora",
-                href: "#",
+                label: "Adinath Yadav",
+                to: "/",
                 icon: (
-                  <img
-                    src="https://assets.aceternity.com/manu.png"
-                    className="h-7 w-7 shrink-0 rounded-full"
-                    width={50}
-                    height={50}
-                    alt="Avatar"
-                  />
+                  <User className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
                 ),
               }}
               className=""
@@ -94,7 +94,7 @@ export const Logo = () => {
   return (
     <a
       href="#"
-      className="relative z-20 flex items-center space-x-2 py-1 text-sm font-normal text-black"
+      className="relative z-20 flex items-center space-x-2 py-1 text-xl gap-1 font-normal text-black"
     >
       <div className="h-5 w-6 shrink-0 rounded-tl-lg rounded-tr-sm rounded-br-lg rounded-bl-sm  dark:bg-white">
         <img src="./android-chrome-192x192.png" alt="logo" />
@@ -102,7 +102,7 @@ export const Logo = () => {
       <motion.span
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="font-medium whitespace-pre text-black dark:text-white"
+        className="font-medium whitespace-pre text-black dark:text-white uppercase"
       >
         Data visualizer
       </motion.span>

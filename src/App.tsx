@@ -11,6 +11,8 @@ import { SignupForm } from "./pages/SignupForm";
 import SigninForm from "./pages/SignInForm";
 import { SidebarMain } from "./components/layout/Sidebar";
 import { LoginProvider } from "./context/user";
+import DashboardComponent from "./pages/Dashboard";
+import ProfileComponent from "./pages/Profile";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +32,15 @@ const App = () => (
             <Route
               path="/login"
               element={<NavbarMain children={<SigninForm />} />}
+            />
+
+            <Route
+              path="/dashboard"
+              element={<SidebarMain children={<DashboardComponent />} />}
+            />
+            <Route
+              path="/profile"
+              element={<SidebarMain children={<ProfileComponent />} />}
             />
             <Route
               path="/analysis"

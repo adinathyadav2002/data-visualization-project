@@ -163,7 +163,6 @@ export const SidebarLink = ({ linkItem, className, ...props }) => {
           {...props}
         >
           <div className="flex-shrink-0">{linkItem.icon}</div>
-
           <motion.span
             animate={{
               display: animate
@@ -183,10 +182,9 @@ export const SidebarLink = ({ linkItem, className, ...props }) => {
           </motion.span>
         </Link>
       )}
-
-      {linkItem.onclick && (
+      {linkItem.onClick && (
         <button
-          onClick={linkItem.onclick}
+          onClick={linkItem.onClick}
           className="flex items-center space-x-2 p-2 gap-2 rounded-md text-neutral-800 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
         >
           <div className="flex-shrink-0">{linkItem.icon}</div>

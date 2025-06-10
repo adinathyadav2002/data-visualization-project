@@ -21,7 +21,7 @@ export default function SigninForm() {
   useEffect(() => {
     // If user is already authenticated, redirect to analysis page
     if (isAuthenticated) {
-      navigate("/analysis");
+      navigate("/dashboard");
     }
   }, [isAuthenticated, navigate]);
 
@@ -53,7 +53,7 @@ export default function SigninForm() {
       });
 
       login();
-      navigate("/analysis");
+      navigate("/dashboard");
     } catch (error) {
       toast({
         title: "Login Failed",

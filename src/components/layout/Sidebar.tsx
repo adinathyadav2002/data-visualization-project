@@ -2,8 +2,15 @@
 import React, { useState } from "react";
 import { Sidebar, SidebarBody, SidebarLink } from "../ui/sidebar";
 import { motion } from "framer-motion";
-import { BarChart3, User, Settings, ArrowLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import {
+  BarChart3,
+  User,
+  Settings,
+  ArrowLeft,
+  UploadCloud,
+  FolderUp,
+} from "lucide-react";
+import { Outlet, useNavigate, useOutletContext } from "react-router-dom";
 import { logoutUser } from "@/api/auth";
 import { useUserContext } from "@/context/user";
 
@@ -12,10 +19,10 @@ const cn = (...classes) => {
   return classes.filter(Boolean).join(" ");
 };
 
-export function SidebarMain({ children }) {
+export function SidebarMain() {
   const navigate = useNavigate();
   const { isAuthenticated, logout } = useUserContext();
-  const links = [
+  const [links, setLinks] = useState([
     {
       label: "Dashboard",
       to: "/dashboard",
@@ -30,16 +37,16 @@ export function SidebarMain({ children }) {
         <User className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
     },
-    // {
-    //   label: "Settings",
-    //   to: "/settings",
-    //   icon: (
-    //     <Settings className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
-    //   ),
-    // },
+    {
+      label: "Data Uploader",
+      to: "/data-uploader",
+      icon: (
+        <UploadCloud className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
+      ),
+    },
     {
       label: "Logout",
-      onclick: () => {
+      onClick: () => {
         logoutUser();
         logout();
         navigate("/login");
@@ -48,7 +55,7 @@ export function SidebarMain({ children }) {
         <ArrowLeft className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
     },
-  ];
+  ]);
 
   const [open, setOpen] = useState(false);
 
@@ -85,7 +92,10 @@ export function SidebarMain({ children }) {
           </div>
         </SidebarBody>
       </Sidebar>
-      {children}
+      {/* pass setlinks to children */}
+      <div className="flex-1 overflow-hidden">
+        <Outlet context={{ setLinks, links }} />
+      </div>
     </div>
   );
 }

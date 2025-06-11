@@ -1,8 +1,6 @@
-import React from "react";
 import DatasetViewer from "./DatasetViewer";
-import type { DatasetInfo } from "./DataAnalysis";
 
-const DatasetViewerPage = ({ data }: { data: DatasetInfo | null }) => {
+const DatasetViewerPage = ({ data }) => {
   if (!data) {
     return (
       <div className="p-8 text-center text-gray-500">

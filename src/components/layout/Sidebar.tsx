@@ -5,10 +5,10 @@ import { motion } from "framer-motion";
 import {
   BarChart3,
   User,
-  Settings,
   ArrowLeft,
-  UploadCloud,
   FolderUp,
+  LayoutDashboard,
+  LogOut,
 } from "lucide-react";
 import { Outlet, useNavigate, useOutletContext } from "react-router-dom";
 import { logoutUser } from "@/api/auth";
@@ -27,7 +27,7 @@ export function SidebarMain() {
       label: "Dashboard",
       to: "/dashboard",
       icon: (
-        <BarChart3 className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
+        <LayoutDashboard className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
     },
     {
@@ -41,7 +41,7 @@ export function SidebarMain() {
       label: "Data Uploader",
       to: "/data-uploader",
       icon: (
-        <UploadCloud className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
+        <FolderUp className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
     },
     {
@@ -52,7 +52,7 @@ export function SidebarMain() {
         navigate("/login");
       },
       icon: (
-        <ArrowLeft className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
+        <LogOut className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
     },
   ]);

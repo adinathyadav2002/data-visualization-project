@@ -2,7 +2,7 @@
 import React, { useState, createContext, useContext } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { link } from "fs";
 
 // Utility function
@@ -151,17 +151,22 @@ export const MobileSidebar = ({ className, children, ...props }) => {
 
 export const SidebarLink = ({ linkItem, className, ...props }) => {
   const { open, animate } = useSidebar();
+  const location = useLocation();
+  const isActive = linkItem.to && location.pathname === linkItem.to;
   return (
     <>
       {linkItem.to && (
         <Link
           to={linkItem.to}
           className={cn(
-            "flex items-center justify-start gap-2 group/sidebar py-2 px-2 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-all duration-200 cursor-pointer",
+            "flex items-center justify-start gap-2 group/sidebar py-2 px-2 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-all duration-200 cursor-pointer relative",
             className
           )}
           {...props}
         >
+          {isActive && (
+            <span className="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-1 rounded bg-[#3b82f6]" />
+          )}
           <div className="flex-shrink-0">{linkItem.icon}</div>
           <motion.span
             animate={{

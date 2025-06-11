@@ -1,20 +1,6 @@
 import React from "react";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { BarChart3, TrendingUp, AlertTriangle, Database } from "lucide-react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { BarChart3 } from "lucide-react";
 
 const DataAnalysisDetails = ({ datasetInfo }) => {
   if (!datasetInfo) return null;

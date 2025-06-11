@@ -17,27 +17,18 @@ import DataUploader from "./pages/DataUploader";
 import { useState } from "react";
 import DataAnalysisDetails from "./pages/DataAnalysisDetails";
 import { useToast } from "@/hooks/use-toast";
-
-// interface DatasetInfo {
-//   id: string;
-//   name: string;
-//   description: string;
-//   fileType: string;
-//   createdAt: string;
-//   updatedAt: string;
-//   columns: Array<{ name: string; type: string }>;
-// }
+import { DatasetInfo, File } from "@/types/types";
 
 const queryClient = new QueryClient();
 
 const App = () => {
   const [file, setFile] = useState<File | null>(null);
-  const [data, setData] = useState(null);
+  const [data, setData] = useState<DatasetInfo | null>(null);
   const [converting, setConverting] = useState(false);
   const [loadingFullDataset, setLoadingFullDataset] = useState(false);
   const { toast } = useToast();
 
-  const onUploadSuccess = (data, file) => {
+  const onUploadSuccess = (data: DatasetInfo, file: File) => {
     console.log("Upload successful:", data);
     console.log("Uploaded file:", file);
     setData(data);
@@ -146,7 +137,6 @@ const App = () => {
         <Toaster />
         <Sonner />
         <LoginProvider>
-          setAnalysisData
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<NavbarMain children={<Index />} />} />

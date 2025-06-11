@@ -16,20 +16,128 @@ import DatasetViewerPage from "./pages/DatasetViewerPage";
 import DataUploader from "./pages/DataUploader";
 import { useState } from "react";
 import DataAnalysisDetails from "./pages/DataAnalysisDetails";
-import type { DatasetInfo } from "./pages/DataAnalysis";
+import { useToast } from "@/hooks/use-toast";
+
+// interface DatasetInfo {
+//   id: string;
+//   name: string;
+//   description: string;
+//   fileType: string;
+//   createdAt: string;
+//   updatedAt: string;
+//   columns: Array<{ name: string; type: string }>;
+// }
 
 const queryClient = new QueryClient();
 
 const App = () => {
   const [file, setFile] = useState<File | null>(null);
-  const [data, setData] = useState<DatasetInfo | null>(null);
-  const [analysisData, setAnalysisData] = useState<DatasetInfo | null>(null);
+  const [data, setData] = useState(null);
+  const [converting, setConverting] = useState(false);
+  const [loadingFullDataset, setLoadingFullDataset] = useState(false);
+  const { toast } = useToast();
 
-  const onUploadSuccess = (data, uploadedFile: File) => {
-    console.log("File uploaded successfully:", data);
+  const onUploadSuccess = (data, file) => {
+    console.log("Upload successful:", data);
+    console.log("Uploaded file:", file);
     setData(data);
-    setFile(uploadedFile);
-    setAnalysisData(data); // Store for DataAnalysisDetails
+    setFile(file);
+  };
+
+  // File conversion handler
+  const handleConvertFile = async (targetFormat: string) => {
+    if (!file) return;
+
+    setConverting(true);
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("target_format", targetFormat);
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}api/data/convert-file`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("File conversion failed");
+      }
+
+      // Create blob and download
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${file.name.split(".")[0]}.${
+        targetFormat === "excel" ? "xlsx" : "csv"
+      }`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      toast({
+        title: "File converted successfully",
+        description: `Your file has been converted to ${targetFormat.toUpperCase()} format.`,
+      });
+    } catch (error) {
+      console.error("Conversion error:", error);
+      toast({
+        title: "Conversion failed",
+        description:
+          error.message || "Failed to convert file. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setConverting(false);
+    }
+  };
+
+  // Load full dataset handler
+  const handleLoadFullDataset = async () => {
+    if (!file) return;
+
+    setLoadingFullDataset(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}api/data/get-full-dataset`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to load full dataset");
+      }
+
+      const fullData = await response.json();
+      setData(fullData);
+
+      toast({
+        title: "Dataset loaded successfully",
+        description: "Full dataset is now available in the dataset viewer.",
+      });
+
+      // Optionally navigate to dataset viewer
+      // You can use react-router's navigate here if needed
+    } catch (error) {
+      console.error("Load dataset error:", error);
+      toast({
+        title: "Failed to load dataset",
+        description:
+          error.message || "Failed to load full dataset. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingFullDataset(false);
+    }
   };
 
   return (
@@ -38,6 +146,7 @@ const App = () => {
         <Toaster />
         <Sonner />
         <LoginProvider>
+          setAnalysisData
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<NavbarMain children={<Index />} />} />
@@ -60,8 +169,12 @@ const App = () => {
                   path="data-analysis"
                   element={
                     <DataAnalysisDetails
-                      datasetInfo={analysisData}
+                      datasetInfo={data}
                       file={file}
+                      converting={converting}
+                      loadingFullDataset={loadingFullDataset}
+                      onConvertFile={handleConvertFile}
+                      onLoadFullDataset={handleLoadFullDataset}
                     />
                   }
                 />

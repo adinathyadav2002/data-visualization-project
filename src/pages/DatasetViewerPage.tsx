@@ -10,7 +10,7 @@ const DatasetViewerPage = ({ data }) => {
   }
   return (
     <div className="w-full bg-gray-50 p-4">
-      <DatasetViewer data={data.preview} columns={data.columns} />
+      <DatasetViewer data={data} columns={data.columns} onBack={() => {}} />
     </div>
   );
 };

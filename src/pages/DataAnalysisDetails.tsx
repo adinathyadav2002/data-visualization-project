@@ -72,18 +72,64 @@ const DataAnalysisDetails: React.FC<DataAnalysisDetailsProps> = ({
   onConvertFile,
   onLoadFullDataset,
 }) => {
-  if (!datasetInfo) return null;
+  console.log(datasetInfo);
+  if (!datasetInfo) {
+    return (
+      <div className="p-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>No Dataset Available</CardTitle>
+            <CardDescription>
+              Please upload a dataset first to view analysis details.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
+
+  // Defensive: handle missing or malformed shape
+  const rows =
+    typeof datasetInfo.shape?.[0] === "number" ? datasetInfo.shape[0] : 0;
+  const cols =
+    typeof datasetInfo.shape?.[1] === "number" ? datasetInfo.shape[1] : 0;
+
+  // Use correct types for all fields
+  const columns =
+    datasetInfo.columns && typeof datasetInfo.columns === "object"
+      ? datasetInfo.columns
+      : {};
+  const missingValues =
+    datasetInfo.missing_values && typeof datasetInfo.missing_values === "object"
+      ? datasetInfo.missing_values
+      : {};
+  const summary =
+    datasetInfo.summary && typeof datasetInfo.summary === "object"
+      ? datasetInfo.summary
+      : {};
+  const numericColumns = Array.isArray(datasetInfo.numeric_columns)
+    ? datasetInfo.numeric_columns
+    : [];
+  const categoricalColumns = Array.isArray(datasetInfo.categorical_columns)
+    ? datasetInfo.categorical_columns
+    : [];
+  const categoricalData =
+    datasetInfo.categorical_data &&
+    typeof datasetInfo.categorical_data === "object"
+      ? datasetInfo.categorical_data
+      : {};
 
   const prepareCategoricalChartData = (
     columnData: Array<{ category: string; count: number }>
   ) => {
+    if (!Array.isArray(columnData)) return [];
     return columnData.map((item) => ({
       category:
-        item.category.length > 15
+        item.category && item.category.length > 15
           ? `${item.category.substring(0, 15)}...`
-          : item.category,
-      fullCategory: item.category,
-      count: item.count,
+          : item.category || "Unknown",
+      fullCategory: item.category || "Unknown",
+      count: item.count || 0,
     }));
   };
 
@@ -177,23 +223,21 @@ const DataAnalysisDetails: React.FC<DataAnalysisDetailsProps> = ({
             <div className="space-y-2">
               <p>
                 <span className="font-semibold">File Type:</span>{" "}
-                {datasetInfo.file_type.toUpperCase()}
+                {datasetInfo?.file_type?.toUpperCase() || "Unknown"}
               </p>
               <p>
-                <span className="font-semibold">Rows:</span>{" "}
-                {datasetInfo.shape[0]}
+                <span className="font-semibold">Rows:</span> {rows}
               </p>
               <p>
-                <span className="font-semibold">Columns:</span>{" "}
-                {datasetInfo.shape[1]}
+                <span className="font-semibold">Columns:</span> {cols}
               </p>
               <p>
                 <span className="font-semibold">Numeric Cols:</span>{" "}
-                {datasetInfo.numeric_columns.length}
+                {numericColumns.length}
               </p>
               <p>
                 <span className="font-semibold">Categorical Cols:</span>{" "}
-                {datasetInfo.categorical_columns.length}
+                {categoricalColumns.length}
               </p>
             </div>
           </CardContent>
@@ -208,12 +252,18 @@ const DataAnalysisDetails: React.FC<DataAnalysisDetailsProps> = ({
           </CardHeader>
           <CardContent>
             <div className="space-y-1 max-h-40 overflow-y-auto">
-              {Object.entries(datasetInfo.columns).map(([col, type]) => (
-                <div key={col} className="flex justify-between text-sm">
-                  <span className="truncate">{col}</span>
-                  <span className="text-gray-500 ml-2">{type}</span>
-                </div>
-              ))}
+              {Object.keys(columns).length > 0 ? (
+                Object.entries(columns).map(([col, type]) => (
+                  <div key={col} className="flex justify-between text-sm">
+                    <span className="truncate">{col}</span>
+                    <span className="text-gray-500 ml-2">{type}</span>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-gray-500">
+                  No column information available
+                </p>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -227,23 +277,22 @@ const DataAnalysisDetails: React.FC<DataAnalysisDetailsProps> = ({
           </CardHeader>
           <CardContent>
             <div className="space-y-1 max-h-40 overflow-y-auto">
-              {Object.entries(datasetInfo.missing_values)
-                .filter(([_, info]) => info.null_count > 0)
-                .slice(0, 5)
-                .map(([col, info]) => (
-                  <div key={col} className="text-sm">
-                    <div className="flex justify-between">
-                      <span className="truncate">{col}</span>
-                      <span className="text-red-500">{info.null_count}</span>
+              {Object.keys(missingValues).length > 0 ? (
+                Object.entries(missingValues)
+                  .filter(([_, info]) => info && info.null_count > 0)
+                  .slice(0, 5)
+                  .map(([col, info]) => (
+                    <div key={col} className="text-sm">
+                      <div className="flex justify-between">
+                        <span className="truncate">{col}</span>
+                        <span className="text-red-500">{info.null_count}</span>
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {info.null_percentage.toFixed(1)}% missing
+                      </div>
                     </div>
-                    <div className="text-xs text-gray-500">
-                      {info.null_percentage.toFixed(1)}% missing
-                    </div>
-                  </div>
-                ))}
-              {Object.values(datasetInfo.missing_values).every(
-                (info) => info.null_count === 0
-              ) && (
+                  ))
+              ) : (
                 <p className="text-sm text-green-600">
                   No missing values found!
                 </p>
@@ -261,27 +310,27 @@ const DataAnalysisDetails: React.FC<DataAnalysisDetailsProps> = ({
           </CardHeader>
           <CardContent>
             <div className="space-y-1 text-sm">
-              <p>
-                Data types: {new Set(Object.values(datasetInfo.columns)).size}
-              </p>
+              <p>Data types: {new Set(Object.values(columns)).size}</p>
               <p>
                 Total missing:{" "}
-                {Object.values(datasetInfo.missing_values).reduce(
-                  (sum, info) => sum + info.null_count,
-                  0
-                )}
+                {Object.keys(missingValues).length > 0
+                  ? Object.values(missingValues).reduce(
+                      (sum, info) => sum + (info?.null_count || 0),
+                      0
+                    )
+                  : 0}
               </p>
-              <p>Total cells: {datasetInfo.shape[0] * datasetInfo.shape[1]}</p>
+              <p>Total cells: {rows * cols}</p>
             </div>
           </CardContent>
         </Card>
       </div>
 
       {/* Categorical Data Visualization */}
-      {datasetInfo.categorical_columns.length > 0 && (
-        <div className="space-y-4 sm:space-y-6">
-          {Object.entries(datasetInfo.categorical_data).map(
-            ([column, data]) => (
+      {categoricalColumns.length > 0 &&
+        Object.keys(categoricalData).length > 0 && (
+          <div className="space-y-4 sm:space-y-6">
+            {Object.entries(categoricalData).map(([column, data]) => (
               <Card key={column}>
                 <CardHeader>
                   <CardTitle className="truncate">
@@ -341,13 +390,12 @@ const DataAnalysisDetails: React.FC<DataAnalysisDetailsProps> = ({
                   </div>
                 </CardContent>
               </Card>
-            )
-          )}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
 
       {/* Summary Statistics */}
-      {datasetInfo.summary && Object.keys(datasetInfo.summary).length > 0 && (
+      {Object.keys(summary).length > 0 && numericColumns.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle>Summary Statistics</CardTitle>
@@ -363,7 +411,7 @@ const DataAnalysisDetails: React.FC<DataAnalysisDetailsProps> = ({
                     <TableHead className="whitespace-nowrap">
                       Statistic
                     </TableHead>
-                    {datasetInfo.numeric_columns.map((col) => (
+                    {numericColumns.map((col) => (
                       <TableHead
                         key={col}
                         className="whitespace-nowrap min-w-[100px]"
@@ -379,9 +427,9 @@ const DataAnalysisDetails: React.FC<DataAnalysisDetailsProps> = ({
                       <TableCell className="font-medium capitalize">
                         {stat}
                       </TableCell>
-                      {datasetInfo.numeric_columns.map((col) => (
+                      {numericColumns.map((col) => (
                         <TableCell key={col} className="whitespace-nowrap">
-                          {datasetInfo.summary[col]?.[stat]?.toFixed(2) || "-"}
+                          {summary[col]?.[stat]?.toFixed(2) || "-"}
                         </TableCell>
                       ))}
                     </TableRow>
@@ -394,64 +442,70 @@ const DataAnalysisDetails: React.FC<DataAnalysisDetailsProps> = ({
       )}
 
       {/* Missing Values Detailed Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Missing Values Analysis</CardTitle>
-          <CardDescription>
-            Detailed breakdown of null and missing values by column
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="whitespace-nowrap">Column</TableHead>
-                  <TableHead className="whitespace-nowrap">Data Type</TableHead>
-                  <TableHead className="whitespace-nowrap">
-                    Missing Count
-                  </TableHead>
-                  <TableHead className="whitespace-nowrap">Missing %</TableHead>
-                  <TableHead className="whitespace-nowrap">Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {Object.entries(datasetInfo.missing_values).map(
-                  ([col, info]) => (
+      {Object.keys(missingValues).length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Missing Values Analysis</CardTitle>
+            <CardDescription>
+              Detailed breakdown of null and missing values by column
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="whitespace-nowrap">Column</TableHead>
+                    <TableHead className="whitespace-nowrap">
+                      Data Type
+                    </TableHead>
+                    <TableHead className="whitespace-nowrap">
+                      Missing Count
+                    </TableHead>
+                    <TableHead className="whitespace-nowrap">
+                      Missing %
+                    </TableHead>
+                    <TableHead className="whitespace-nowrap">Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {Object.entries(missingValues).map(([col, info]) => (
                     <TableRow key={col}>
                       <TableCell className="font-medium">
                         <div className="truncate max-w-[150px]" title={col}>
                           {col}
                         </div>
                       </TableCell>
-                      <TableCell>{datasetInfo.columns[col]}</TableCell>
-                      <TableCell>{info.null_count}</TableCell>
-                      <TableCell>{info.null_percentage.toFixed(1)}%</TableCell>
+                      <TableCell>{columns[col] || "Unknown"}</TableCell>
+                      <TableCell>{info?.null_count || 0}</TableCell>
+                      <TableCell>
+                        {info?.null_percentage?.toFixed(1) || 0}%
+                      </TableCell>
                       <TableCell>
                         <span
                           className={`px-2 py-1 rounded text-xs whitespace-nowrap ${
-                            info.null_count === 0
+                            (info?.null_count || 0) === 0
                               ? "bg-green-100 text-green-800"
-                              : info.null_percentage > 50
+                              : (info?.null_percentage || 0) > 50
                               ? "bg-red-100 text-red-800"
                               : "bg-yellow-100 text-yellow-800"
                           }`}
                         >
-                          {info.null_count === 0
+                          {(info?.null_count || 0) === 0
                             ? "Complete"
-                            : info.null_percentage > 50
+                            : (info?.null_percentage || 0) > 50
                             ? "High Missing"
                             : "Some Missing"}
                         </span>
                       </TableCell>
                     </TableRow>
-                  )
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

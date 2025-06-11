@@ -23,6 +23,32 @@ const DataUploader = ({ onUploadSuccess }) => {
   const { toast } = useToast();
   const { setLinks, links } = useOutletContext() || {};
 
+  // Fetch the full dataset after upload
+  const fetchFullDataset = async (file) => {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}api/data/get-full-dataset`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch full dataset");
+      }
+      return await response.json();
+    } catch (error) {
+      toast({
+        title: "Failed to fetch full dataset",
+        description: error.message,
+        variant: "destructive",
+      });
+      return null;
+    }
+  };
+
   const handleAddSidebarLinks = () => {
     if (!setLinks || !links) return;
     const logoutIndex = links.findIndex((l) => l.label === "Logout");
@@ -93,14 +119,24 @@ const DataUploader = ({ onUploadSuccess }) => {
         throw new Error(errorData.detail || "Upload failed");
       }
       const data = await response.json();
+
       toast({
         title: "File uploaded successfully",
         description: `Dataset analyzed: ${data.shape?.[0] || 0} rows, ${
           data.shape?.[1] || 0
         } columns`,
       });
-      //   function to handle successful upload
-      onUploadSuccess?.(data, file);
+      // Fetch the full dataset after upload
+      const fullDataset = await fetchFullDataset(file);
+      if (fullDataset) {
+        onUploadSuccess(fullDataset, data);
+      } else {
+        toast({
+          title: "No data available",
+          description: "The uploaded file does not contain valid data.",
+          variant: "destructive",
+        });
+      }
       handleAddSidebarLinks();
       // Optionally reset file after upload
       // setFile(null);

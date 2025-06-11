@@ -58,7 +58,12 @@ const App = () => {
                 />
                 <Route
                   path="data-analysis"
-                  element={<DataAnalysisDetails datasetInfo={analysisData} />}
+                  element={
+                    <DataAnalysisDetails
+                      datasetInfo={analysisData}
+                      file={file}
+                    />
+                  }
                 />
                 <Route
                   path="dataset-viewer"

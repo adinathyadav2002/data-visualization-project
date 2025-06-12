@@ -8,15 +8,6 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-} from "recharts";
-import {
   BarChart3,
   Download,
   AlertTriangle,
@@ -25,9 +16,7 @@ import {
   PieChart as PieChartIcon,
   Activity,
 } from "lucide-react";
-import { CustomTooltip } from "../components/layout/CustomToolTip";
 import OverviewCharts from "@/components/dataAnalysis/OverviewCharts";
-import { dataAnalysisData } from "../data/analysis";
 import CategoricalDataVisual from "@/components/dataAnalysis/CategoricalDataVisual";
 import NumericDataVisualization from "@/components/dataAnalysis/NumericDataVisualization";
 import SummaryStatTable from "@/components/dataAnalysis/SummaryStatTable";
@@ -81,7 +70,6 @@ const DataAnalysisDetails: React.FC<DataAnalysisDetailsProps> = ({
   onLoadFullDataset,
 }) => {
   const [activeChart, setActiveChart] = useState<string>("overview");
-  const COLORS = dataAnalysisData.getColors();
 
   if (!datasetInfo && !file) {
     return (

@@ -21,9 +21,11 @@ import {
   Target,
   Zap,
   Globe,
+  ChartAreaIcon,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
-const DashboardComponent = () => {
+const DashboardComponent = ({ dataUploaded = false }) => {
   const [stats, setStats] = useState({
     totalProjects: 12,
     activeAnalyses: 3,
@@ -106,21 +108,21 @@ const DashboardComponent = () => {
       title: "Upload Dataset",
       description: "Import CSV or Excel files",
       color: "bg-blue-500",
-      path: "/upload",
+      path: "/data-uploader",
     },
     {
       icon: PieChart,
-      title: "Create Analysis",
-      description: "Start new data analysis",
+      title: "View Analytics",
+      description: "View your data insights",
       color: "bg-emerald-500",
-      path: "/analytics",
+      path: "/data-analysis",
     },
     {
       icon: FileText,
       title: "Generate Report",
-      description: "Create detailed reports",
+      description: "Download detailed reports for dataset",
       color: "bg-violet-500",
-      path: "/reports",
+      path: "/data-analysis/reports",
     },
     {
       icon: Users,
@@ -130,19 +132,19 @@ const DashboardComponent = () => {
       path: "/collaborate",
     },
     {
-      icon: TrendingUp,
-      title: "View Trends",
-      description: "Analyze data patterns",
+      icon: ChartAreaIcon,
+      title: "Create Charts",
+      description: "Create visualizations for your data",
       color: "bg-pink-500",
-      path: "/trends",
+      path: "/create-charts",
     },
-    {
-      icon: Database,
-      title: "Data Management",
-      description: "Organize your datasets",
-      color: "bg-indigo-500",
-      path: "/data",
-    },
+    // {
+    //   icon: Database,
+    //   title: "Data Management",
+    //   description: "Organize your datasets",
+    //   color: "bg-indigo-500",
+    //   path: "/data",
+    // },
   ]);
 
   const [learningResources] = useState([
@@ -204,16 +206,10 @@ const DashboardComponent = () => {
   );
 
   // Quick Action Card Component
-  const QuickActionCard = ({
-    icon: Icon,
-    title,
-    description,
-    color,
-    onClick,
-  }) => (
-    <button
-      onClick={onClick}
-      className="p-4 border border-slate-200 rounded-xl hover:shadow-md transition-all duration-200 text-left group hover:border-slate-300 bg-white"
+  const QuickActionCard = ({ icon: Icon, title, description, color, path }) => (
+    <Link
+      to={path}
+      className="w-full h-full rounded-xl hover:shadow-md transition-all duration-200 text-left group hover:border-slate-300 "
     >
       <div
         className={`w-12 h-12 ${color} rounded-lg flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-200 shadow-sm`}
@@ -222,7 +218,7 @@ const DashboardComponent = () => {
       </div>
       <h3 className="font-semibold text-slate-900 mb-1">{title}</h3>
       <p className="text-sm text-slate-600">{description}</p>
-    </button>
+    </Link>
   );
 
   // Project Card Component
@@ -352,6 +348,42 @@ const DashboardComponent = () => {
     </div>
   );
 
+  // Overlay for quick links except Upload Dataset
+  const renderQuickLinks = () => (
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 relative ">
+      {quickLinks.map((link, index) => {
+        const isUpload = link.title === "Upload Dataset";
+        const showOverlay = !dataUploaded && !isUpload;
+        return (
+          <div
+            key={index}
+            className="relative w-full h-full bg-blue-200 rounded-xl p-4"
+          >
+            <QuickActionCard
+              icon={link.icon}
+              title={link.title}
+              description={link.description}
+              color={link.color}
+              path={link.path}
+            />
+            {showOverlay && (
+              <div className="absolute w-full h-full rounded-xl bg-blue-50 opacity-0 hover:opacity-100 cursor-pointer inset-0 z-10  flex flex-col items-center justify-center pointer-events-auto ">
+                <div className="text-center px-2">
+                  <p className="text-base font-semibold text-blue-700 mb-1">
+                    Upload a dataset to unlock
+                  </p>
+                  <p className="text-xs text-gray-600">
+                    This feature is disabled until you upload data.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-slate-50 p-6">
       <div className="mb-8">
@@ -375,8 +407,52 @@ const DashboardComponent = () => {
         </p>
       </div>
 
+      {/* Quick Links */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+        <div className="lg:col-span-6">
+          <div className="bg-white rounded-xl border border-slate-200 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-xl font-semibold text-slate-900 flex items-center">
+                  <Zap className="w-5 h-5 mr-2 text-blue-600" />
+                  Quick Actions
+                </h2>
+                <p className="text-slate-600 text-sm">
+                  Get started with your data analysis
+                </p>
+              </div>
+              {/* <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+                View All
+              </button> */}
+            </div>
+            {renderQuickLinks()}
+          </div>
+        </div>
+
+        {/* Notifications */}
+        {/* <div className="bg-white rounded-xl border border-slate-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-slate-900 flex items-center">
+              <Bell className="w-5 h-5 mr-2 text-blue-600" />
+              Recent Activity
+            </h2>
+            <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+              View All
+            </button>
+          </div>
+          <div className="space-y-2">
+            {notifications.slice(0, 4).map((notification) => (
+              <NotificationCard
+                key={notification.id}
+                notification={notification}
+              />
+            ))}
+          </div>
+        </div> */}
+      </div>
+
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <StatsCard
           title="Total Projects"
           value={stats.totalProjects}
@@ -409,65 +485,10 @@ const DashboardComponent = () => {
           change="2.4/5GB"
           subtitle="available space"
         />
-      </div>
-
-      {/* Quick Links */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
-        <div className="lg:col-span-3">
-          <div className="bg-white rounded-xl border border-slate-200 p-6">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h2 className="text-xl font-semibold text-slate-900 flex items-center">
-                  <Zap className="w-5 h-5 mr-2 text-blue-600" />
-                  Quick Actions
-                </h2>
-                <p className="text-slate-600 text-sm">
-                  Get started with your data analysis
-                </p>
-              </div>
-              <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
-                View All
-              </button>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-              {quickLinks.map((link, index) => (
-                <QuickActionCard
-                  key={index}
-                  icon={link.icon}
-                  title={link.title}
-                  description={link.description}
-                  color={link.color}
-                  onClick={() => console.log(`Navigate to ${link.path}`)}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Notifications */}
-        <div className="bg-white rounded-xl border border-slate-200 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-slate-900 flex items-center">
-              <Bell className="w-5 h-5 mr-2 text-blue-600" />
-              Recent Activity
-            </h2>
-            <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
-              View All
-            </button>
-          </div>
-          <div className="space-y-2">
-            {notifications.slice(0, 4).map((notification) => (
-              <NotificationCard
-                key={notification.id}
-                notification={notification}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
+      </div> */}
 
       {/* Recent Projects and Learning Resources */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+      {/* <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         <div className="lg:col-span-2">
           <div className="bg-white rounded-xl border border-slate-200 p-6">
             <div className="flex items-center justify-between mb-6">
@@ -503,10 +524,10 @@ const DashboardComponent = () => {
             ))}
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Analytics Overview */}
-      <div className="bg-white rounded-xl border border-slate-200 p-6">
+      {/* <div className="bg-white rounded-xl border border-slate-200 p-6">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-slate-900 flex items-center">
             <TrendingUp className="w-5 h-5 mr-2 text-blue-600" />
@@ -553,7 +574,7 @@ const DashboardComponent = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

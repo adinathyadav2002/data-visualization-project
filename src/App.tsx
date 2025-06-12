@@ -18,6 +18,7 @@ import { useState } from "react";
 import DataAnalysisDetails from "./pages/DataAnalysisDetails";
 import { useToast } from "@/hooks/use-toast";
 import { DatasetInfo, File } from "@/types/types";
+import ChartBuilder from "./pages/CreateCharts";
 
 const queryClient = new QueryClient();
 
@@ -172,6 +173,7 @@ const App = () => {
                   path="dataset-viewer"
                   element={<DatasetViewerPage data={data} />}
                 />
+                <Route path="charts-creator" element={<ChartBuilder />} />
               </Route>
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />

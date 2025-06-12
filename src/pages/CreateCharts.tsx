@@ -33,6 +33,7 @@ const ChartBuilder = () => {
   const [charts, setCharts] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [editingChart, setEditingChart] = useState(null);
+  const [isExporting, setIsExporting] = useState(false);
   const [currentChart, setCurrentChart] = useState({
     id: null,
     title: "",
@@ -234,20 +235,67 @@ const ChartBuilder = () => {
   };
 
   const exportToPDF = async () => {
-    const html2pdf = await import(
-      "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
-    );
+    if (charts.length === 0) {
+      alert("No charts to export");
+      return;
+    }
 
-    const element = chartsRef.current;
-    const opt = {
-      margin: 1,
-      filename: "charts-export.pdf",
-      image: { type: "jpeg", quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
-    };
+    setIsExporting(true);
 
-    html2pdf.default().set(opt).from(element).save();
+    try {
+      // Create a script element to load html2pdf
+      const script = document.createElement("script");
+      script.src =
+        "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js";
+
+      // Wait for script to load
+      await new Promise((resolve, reject) => {
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+
+      // Wait a bit for the library to initialize
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      const element = chartsRef.current;
+
+      if (!element) {
+        throw new Error("Charts container not found");
+      }
+
+      const opt = {
+        margin: 0.5,
+        filename: `charts-export-${new Date().toISOString().split("T")[0]}.pdf`,
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: {
+          scale: 1.5,
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: "#ffffff",
+        },
+        jsPDF: {
+          unit: "in",
+          format: "a4",
+          orientation: "portrait",
+        },
+      };
+
+      // Use the global html2pdf function
+      if (window.html2pdf) {
+        await window.html2pdf().set(opt).from(element).save();
+      } else {
+        throw new Error("html2pdf library not loaded");
+      }
+
+      // Clean up
+      document.head.removeChild(script);
+    } catch (error) {
+      console.error("PDF export failed:", error);
+      alert("Failed to export PDF. Please try again.");
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   const renderChart = (chart) => {
@@ -349,10 +397,11 @@ const ChartBuilder = () => {
               {charts.length > 0 && (
                 <button
                   onClick={exportToPDF}
-                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                  disabled={isExporting}
+                  className="bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
                 >
                   <Download size={20} />
-                  Export PDF
+                  {isExporting ? "Exporting..." : "Export PDF"}
                 </button>
               )}
             </div>
@@ -399,7 +448,7 @@ const ChartBuilder = () => {
         </div>
 
         {/* Charts Display */}
-        <div ref={chartsRef}>
+        <div ref={chartsRef} className="charts-container">
           {charts.length > 0 && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {charts.map((chart) => (

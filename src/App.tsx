@@ -27,71 +27,78 @@ const App = () => {
   const [data, setData] = useState<DatasetInfo | null>(null);
   const [converting, setConverting] = useState(false);
   const [loadingFullDataset, setLoadingFullDataset] = useState(false);
+  const [originalFile, setOriginalFile] = useState<any>(null);
   const { toast } = useToast();
 
-  const onUploadSuccess = (data: DatasetInfo, file: File) => {
-    console.log("Upload successful:", data);
-    console.log("Uploaded file:", file);
+  const onUploadSuccess = (
+    data: DatasetInfo,
+    file: File,
+    originalFile: any
+  ) => {
+    console.log(data, file);
     setData(data);
     setFile(file);
+    setOriginalFile(originalFile);
   };
 
   // File conversion handler
-  const handleConvertFile = async (targetFormat: string) => {
-    if (!file) return;
-
-    setConverting(true);
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("target_format", targetFormat);
-
+  const handleConvertFile = async (outputFormat = "csv") => {
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}api/data/convert-file`,
-        {
-          method: "POST",
-          body: formData,
-        }
+      const formData = new FormData();
+      formData.append("file", originalFile);
+
+      // Add the output_format as a query parameter
+      const url = new URL(
+        `${import.meta.env.VITE_BACKEND_URL}api/data/convert-file`
       );
+      url.searchParams.append("output_format", outputFormat);
+
+      const response = await fetch(url.toString(), {
+        method: "POST",
+        body: formData,
+      });
 
       if (!response.ok) {
-        throw new Error("File conversion failed");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || "Conversion failed");
       }
 
-      // Create blob and download
+      // Handle the file download
       const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${file.name.split(".")[0]}.${
-        targetFormat === "excel" ? "xlsx" : "csv"
-      }`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      const filename =
+        response.headers
+          .get("Content-Disposition")
+          ?.split("filename=")[1]
+          ?.replace(/"/g, "") ||
+        `converted.${outputFormat === "excel" ? "xlsx" : "csv"}`;
+
+      // Create download link
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(downloadUrl);
 
       toast({
         title: "File converted successfully",
-        description: `Your file has been converted to ${targetFormat.toUpperCase()} format.`,
+        description: `File converted to ${outputFormat.toUpperCase()} format`,
       });
     } catch (error) {
       console.error("Conversion error:", error);
       toast({
         title: "Conversion failed",
-        description:
-          error.message || "Failed to convert file. Please try again.",
+        description: error.message || "Failed to convert file",
         variant: "destructive",
       });
-    } finally {
-      setConverting(false);
     }
   };
 
   // Load full dataset handler
   const handleLoadFullDataset = async () => {
     if (!file) return;
-
     setLoadingFullDataset(true);
     const formData = new FormData();
     formData.append("file", file);
@@ -150,7 +157,12 @@ const App = () => {
                 element={<NavbarMain children={<SigninForm />} />}
               />
               <Route element={<SidebarMain />}>
-                <Route path="dashboard" element={<DashboardComponent />} />
+                <Route
+                  path="dashboard"
+                  element={
+                    <DashboardComponent dataUploaded={file ? true : false} />
+                  }
+                />
                 <Route path="profile" element={<ProfileComponent />} />
                 <Route
                   path="data-uploader"

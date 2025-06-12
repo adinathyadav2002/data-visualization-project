@@ -334,7 +334,7 @@ const ProfileComponent = () => {
       </div>
 
       {/* Statistics */}
-      <div className="bg-white rounded-xl border border-slate-200 p-6">
+      {/* <div className="bg-white rounded-xl border border-slate-200 p-6">
         <h3 className="text-lg font-semibold text-slate-900 mb-4">
           Account Statistics
         </h3>
@@ -382,7 +382,7 @@ const ProfileComponent = () => {
             <div className="text-sm text-slate-600">Achievements</div>
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 
@@ -746,7 +746,7 @@ const ProfileComponent = () => {
   );
 
   return (
-    <div className="min-h-screen w-full bg-slate-50 p-4">
+    <div className="min-h-screen w-full bg-slate-50 p-6">
       <div className=" mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -759,7 +759,7 @@ const ProfileComponent = () => {
         </div>
 
         {/* Navigation Tabs */}
-        <div className="bg-white rounded-xl border border-slate-200 mb-6">
+        {/* <div className="bg-white rounded-xl border border-slate-200 mb-6">
           <div className="flex overflow-x-auto">
             <button
               onClick={() => setActiveTab("profile")}
@@ -784,7 +784,6 @@ const ProfileComponent = () => {
               <span>Security</span>
             </button>
 
-            {/* Notifications Tab Button */}
             <button
               onClick={() => setActiveTab("notifications")}
               className={`flex items-center space-x-2 px-6 py-4 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
@@ -797,7 +796,6 @@ const ProfileComponent = () => {
               <span>Notifications</span>
             </button>
 
-            {/* Activity Tab Button */}
             <button
               onClick={() => setActiveTab("activity")}
               className={`flex items-center space-x-2 px-6 py-4 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
@@ -810,7 +808,7 @@ const ProfileComponent = () => {
               <span>Activity</span>
             </button>
           </div>
-        </div>
+        </div> */}
 
         {/* Active Tab Content */}
         <div className="space-y-6">

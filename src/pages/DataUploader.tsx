@@ -25,6 +25,7 @@ const DataUploader = ({ onUploadSuccess }) => {
 
   // Fetch the full dataset after upload
   const fetchFullDataset = async (file) => {
+    console.log("first file", file);
     try {
       const formData = new FormData();
       formData.append("file", file);
@@ -129,7 +130,7 @@ const DataUploader = ({ onUploadSuccess }) => {
       // Fetch the full dataset after upload
       const fullDataset = await fetchFullDataset(file);
       if (fullDataset) {
-        onUploadSuccess(fullDataset, data);
+        onUploadSuccess(fullDataset, data, file);
       } else {
         toast({
           title: "No data available",

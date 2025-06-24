@@ -18,6 +18,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+@app.get("/", tags=["root"])
+async def root():
+    return {"message": "Data Analysis API is running"}
+
 app.include_router(fast_api_router, prefix="/api/data", tags=["fastapi"])
 app.include_router(user_router, prefix="/api/users", tags=["users"])
 app.include_router(auth_router, prefix="/api/auth", tags=["authentication"])

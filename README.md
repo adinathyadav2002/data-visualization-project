@@ -169,7 +169,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **Adinath Yadav**
 
 - GitHub: [@adinathyadav2002](https://github.com/adinathyadav2002)
-- LinkedIn: [Your LinkedIn Profile](https://www.linkedin.com/in/adinath-yadav-50a294251/)
+- LinkedIn: [LinkedIn Profile](https://www.linkedin.com/in/adinath-yadav-50a294251/)
 
 ## 🙏 Acknowledgments
 

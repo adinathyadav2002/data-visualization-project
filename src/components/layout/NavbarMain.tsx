@@ -16,8 +16,8 @@ import { Children, useState } from "react";
 export function NavbarMain({ children }: { children: React.ReactNode }) {
   const navItems = [
     {
-      name: "Features",
-      to: "/features",
+      name: "Data Cleaning",
+      to: "/data-cleaning-steps",
     },
     {
       name: "Github",

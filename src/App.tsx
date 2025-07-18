@@ -19,6 +19,8 @@ import DataAnalysisDetails from "./pages/DataAnalysisDetails";
 import { useToast } from "@/hooks/use-toast";
 import { DatasetInfo, File } from "@/types/types";
 import ChartBuilder from "./pages/CreateCharts";
+import DataCleaningStepsPage from "./pages/DataCleaningSteps";
+import DataCleaning from "./pages/DataCleaning";
 
 const queryClient = new QueryClient();
 
@@ -156,6 +158,10 @@ const App = () => {
                 path="/login"
                 element={<NavbarMain children={<SigninForm />} />}
               />
+              <Route
+                path="/data-cleaning-steps"
+                element={<NavbarMain children={<DataCleaningStepsPage />} />}
+              />
               <Route element={<SidebarMain />}>
                 <Route
                   path="dashboard"
@@ -163,6 +169,7 @@ const App = () => {
                     <DashboardComponent dataUploaded={file ? true : false} />
                   }
                 />
+                <Route path="clean-data" element={<DataCleaning />} />
                 <Route path="profile" element={<ProfileComponent />} />
                 <Route
                   path="data-uploader"

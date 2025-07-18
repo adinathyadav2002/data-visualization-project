@@ -31,6 +31,7 @@ import {
   Linkedin,
 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
 const Index = () => {
   const [animatedStats, setAnimatedStats] = useState({
@@ -120,25 +121,25 @@ const Index = () => {
 
   const testimonials = [
     {
-      name: "Dr. Sarah Chen",
-      role: "Statistics Professor, MIT",
+      name: "Adinath Yadav",
+      role: "Student, developer of this project",
       content:
         "This platform has revolutionized how my students approach data analysis projects.",
       rating: 5,
     },
     {
-      name: "Alex Rodriguez",
-      role: "PhD Candidate, Stanford",
+      name: "Sumit Suryawanshi",
+      role: "Student",
       content:
         "The automated insights saved me weeks of manual analysis for my dissertation.",
       rating: 5,
     },
     {
-      name: "Prof. Michael Johnson",
-      role: "Research Director, Harvard",
+      name: "Rahul Solanke",
+      role: "Student",
       content:
         "An excellent tool for teaching statistical concepts with real-world data.",
-      rating: 5,
+      rating: 4,
     },
   ];
 
@@ -162,7 +163,7 @@ const Index = () => {
               Academic Data Analysis Platform
             </div>
 
-            <h1 className="text-5xl md:text-7xl font-bold text-slate-900 mb-6 leading-tight">
+            <h1 className="text-3xl md:text-5xl font-bold text-slate-900 mb-6 leading-tight">
               Transform Your
               <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                 {" "}
@@ -226,7 +227,7 @@ const Index = () => {
       <section id="features" className="py-20 bg-white">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-slate-900 mb-4">
+            <h2 className="lg:text-3xl text-xl font-bold text-slate-900 mb-4">
               Powerful Features for Every Analysis
             </h2>
             <p className="text-xl text-slate-600 max-w-3xl mx-auto">
@@ -266,7 +267,7 @@ const Index = () => {
       <section className="py-20 bg-gradient-to-br from-slate-50 to-blue-50">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-slate-900 mb-4">
+            <h2 className="lg:text-3xl text-xl font-bold text-slate-900 mb-4">
               How It Works
             </h2>
             <p className="text-xl text-slate-600">
@@ -327,7 +328,7 @@ const Index = () => {
       <section id="academic" className="py-20 bg-white">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-slate-900 mb-4">
+            <h2 className="lg:text-3xl text-xl  font-bold text-slate-900 mb-4">
               Built for Academic Excellence
             </h2>
             <p className="text-xl text-slate-600 max-w-3xl mx-auto">
@@ -377,10 +378,10 @@ const Index = () => {
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-slate-900 mb-4">
-              Trusted by Educators & Researchers
+              Trusted by Students and Academics
             </h2>
             <p className="text-xl text-slate-600">
-              See what academic professionals are saying about our platform
+              See what students and academics are saying about our platform
             </p>
           </div>
 
@@ -426,19 +427,12 @@ const Index = () => {
             DataLyzer to unlock insights from their data.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button
-              size="lg"
-              className="bg-white text-blue-600 hover:bg-gray-50 px-8 py-4 text-lg"
+            <Link
+              to="/register"
+              className="bg-white text-blue-600 hover:bg-gray-50 px-8 py-2 text-lg"
             >
               Start Free Trial
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="border-white text-white hover:bg-white hover:text-blue-600 px-8 py-4 text-lg"
-            >
-              Schedule Demo
-            </Button>
+            </Link>
           </div>
         </div>
       </section>

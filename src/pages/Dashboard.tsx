@@ -138,13 +138,13 @@ const DashboardComponent = ({ dataUploaded = false }) => {
       color: "bg-pink-500",
       path: "/create-charts",
     },
-    // {
-    //   icon: Database,
-    //   title: "Data Management",
-    //   description: "Organize your datasets",
-    //   color: "bg-indigo-500",
-    //   path: "/data",
-    // },
+    {
+      icon: Database,
+      title: "Clean Data",
+      description: "Prepare your dataset for analysis",
+      color: "bg-indigo-500",
+      path: "/clean-data",
+    },
   ]);
 
   const [learningResources] = useState([

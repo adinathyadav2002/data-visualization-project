@@ -179,7 +179,16 @@ const App = () => {
                     <DashboardComponent dataUploaded={file ? true : false} />
                   }
                 />
-                <Route path="clean-data" element={<DataCleaning />} />
+                <Route
+                  path="clean-data"
+                  element={
+                    <DataCleaning
+                      datasetInfo={data}
+                      file={file}
+                      onUpdateData={setData}
+                    />
+                  }
+                />
                 <Route path="profile" element={<ProfileComponent />} />
                 <Route
                   path="data-uploader"

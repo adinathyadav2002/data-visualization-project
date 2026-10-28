@@ -1,11 +1,24 @@
 from fastapi.responses import StreamingResponse
 import pandas as pd
 import numpy as np
+import re
 from io import StringIO, BytesIO
+from typing import List, Dict, Any, Optional
+from pydantic import BaseModel
 from fastapi import FastAPI, UploadFile, File, HTTPException, Query, APIRouter
 
 
 router = APIRouter()
+
+
+class CleanOperation(BaseModel):
+    type: str
+    params: Optional[Dict[str, Any]] = None
+
+
+class CleanDataRequest(BaseModel):
+    data: List[Dict[str, Any]]
+    operations: List[CleanOperation]
 
 
 @router.get("/")
@@ -239,3 +252,152 @@ async def convert_file(
             status_code=500,
             detail=f"Failed to process file: {str(e)}"
         )
+
+
+@router.post("/clean-data")
+async def clean_data_endpoint(request: CleanDataRequest):
+    """
+    Perform optimal, vectorized data cleaning operations using pandas.
+    Supports missing value imputation/removal, duplicate removal, column standardization,
+    text normalization, outlier removal, and column type casting.
+    """
+    try:
+        if not request.data:
+            return {"data": [], "columns": {}, "total_rows": 0, "log": ["Dataset is empty"]}
+
+        df = pd.DataFrame(request.data)
+        log = []
+
+        for op in request.operations:
+            op_type = op.type
+            params = op.params or {}
+
+            if op_type == "drop_duplicates":
+                before = len(df)
+                subset = params.get("columns")
+                keep = params.get("keep", "first")
+                if subset and isinstance(subset, list) and len(subset) > 0:
+                    df = df.drop_duplicates(subset=subset, keep=keep)
+                else:
+                    df = df.drop_duplicates(keep=keep)
+                dropped = before - len(df)
+                log.append(f"Removed {dropped} duplicate rows (keep='{keep}')")
+
+            elif op_type == "drop_na":
+                before = len(df)
+                subset = params.get("columns")
+                how = params.get("how", "any")
+                if subset and isinstance(subset, list) and len(subset) > 0:
+                    df = df.dropna(subset=subset, how=how)
+                else:
+                    df = df.dropna(how=how)
+                dropped = before - len(df)
+                log.append(f"Dropped {dropped} rows containing null values")
+
+            elif op_type == "fill_na":
+                strategy = params.get("strategy", "constant")
+                cols = params.get("columns") or df.columns.tolist()
+                fill_val = params.get("value", "")
+
+                for c in cols:
+                    if c in df.columns:
+                        null_c = int(df[c].isna().sum())
+                        if null_c > 0:
+                            if strategy == "mean" and pd.api.types.is_numeric_dtype(df[c]):
+                                m = float(df[c].mean())
+                                df[c] = df[c].fillna(m)
+                                log.append(f"Filled {null_c} missing values in '{c}' with mean ({round(m, 2)})")
+                            elif strategy == "median" and pd.api.types.is_numeric_dtype(df[c]):
+                                med = float(df[c].median())
+                                df[c] = df[c].fillna(med)
+                                log.append(f"Filled {null_c} missing values in '{c}' with median ({round(med, 2)})")
+                            elif strategy == "mode":
+                                mode_val = df[c].mode()
+                                val = mode_val[0] if not mode_val.empty else fill_val
+                                df[c] = df[c].fillna(val)
+                                log.append(f"Filled {null_c} missing values in '{c}' with mode ('{val}')")
+                            elif strategy == "ffill":
+                                df[c] = df[c].ffill()
+                                log.append(f"Forward-filled {null_c} missing values in '{c}'")
+                            elif strategy == "bfill":
+                                df[c] = df[c].bfill()
+                                log.append(f"Backward-filled {null_c} missing values in '{c}'")
+                            else:
+                                df[c] = df[c].fillna(fill_val)
+                                log.append(f"Filled {null_c} missing values in '{c}' with '{fill_val}'")
+
+            elif op_type == "standardize_columns":
+                case = params.get("case", "snake_case")
+                new_names = {}
+                for col in df.columns:
+                    clean_col = str(col).strip()
+                    if case == "snake_case":
+                        clean_col = re.sub(r'[^\w\s]', '', clean_col)
+                        clean_col = re.sub(r'\s+', '_', clean_col).lower()
+                    elif case == "lowercase":
+                        clean_col = clean_col.lower()
+                    elif case == "uppercase":
+                        clean_col = clean_col.upper()
+                    new_names[col] = clean_col
+                df = df.rename(columns=new_names)
+                log.append(f"Standardized all column names to {case}")
+
+            elif op_type == "clean_text":
+                cols = params.get("columns") or df.select_dtypes(include=['object']).columns.tolist()
+                action = params.get("action", "trim")
+                for c in cols:
+                    if c in df.columns and pd.api.types.is_object_dtype(df[c]):
+                        s = df[c].astype(str)
+                        if action == "trim":
+                            df[c] = s.str.strip()
+                        elif action == "lowercase":
+                            df[c] = s.str.lower()
+                        elif action == "uppercase":
+                            df[c] = s.str.upper()
+                        elif action == "remove_special":
+                            df[c] = s.str.replace(r'[^a-zA-Z0-9\s]', '', regex=True)
+                log.append(f"Applied text cleaning ({action}) to {len(cols)} columns")
+
+            elif op_type == "remove_outliers":
+                cols = params.get("columns") or df.select_dtypes(include=[np.number]).columns.tolist()
+                multiplier = float(params.get("multiplier", 1.5))
+                action = params.get("action", "remove")
+                total_outliers = 0
+                for c in cols:
+                    if c in df.columns and pd.api.types.is_numeric_dtype(df[c]):
+                        q1 = df[c].quantile(0.25)
+                        q3 = df[c].quantile(0.75)
+                        iqr = q3 - q1
+                        lower_bound = q1 - multiplier * iqr
+                        upper_bound = q3 + multiplier * iqr
+                        outlier_mask = (df[c] < lower_bound) | (df[c] > upper_bound)
+                        outlier_count = int(outlier_mask.sum())
+                        if outlier_count > 0:
+                            total_outliers += outlier_count
+                            if action == "remove":
+                                df = df[~outlier_mask]
+                            elif action == "clip":
+                                df[c] = df[c].clip(lower_bound, upper_bound)
+                log.append(f"{'Removed' if action == 'remove' else 'Clipped'} {total_outliers} outliers using IQR")
+
+        # Convert back to clean records
+        data_rows = df.fillna("").to_dict('records')
+        for row in data_rows:
+            for key, value in row.items():
+                if pd.isna(value):
+                    row[key] = ""
+                elif isinstance(value, (np.integer, np.int64)):
+                    row[key] = int(value)
+                elif isinstance(value, (np.floating, np.float64)):
+                    row[key] = float(value)
+                else:
+                    row[key] = str(value)
+
+        return {
+            "data": data_rows,
+            "columns": {col: str(df[col].dtype) for col in df.columns},
+            "total_rows": len(df),
+            "log": log
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Data cleaning failed: {str(e)}")

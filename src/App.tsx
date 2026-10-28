@@ -100,10 +100,23 @@ const App = () => {
 
   // Load full dataset handler
   const handleLoadFullDataset = async () => {
-    if (!file) return;
+    // If dataset rows are already available in memory, no need to call API again
+    if (data && ((data as any)?.data || Array.isArray(data))) {
+      return;
+    }
+
+    const actualFile =
+      originalFile instanceof Blob
+        ? originalFile
+        : file instanceof Blob
+        ? file
+        : null;
+
+    if (!actualFile) return;
+
     setLoadingFullDataset(true);
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append("file", actualFile);
 
     try {
       const response = await fetch(
@@ -125,10 +138,7 @@ const App = () => {
         title: "Dataset loaded successfully",
         description: "Full dataset is now available in the dataset viewer.",
       });
-
-      // Optionally navigate to dataset viewer
-      // You can use react-router's navigate here if needed
-    } catch (error) {
+    } catch (error: any) {
       console.error("Load dataset error:", error);
       toast({
         title: "Failed to load dataset",

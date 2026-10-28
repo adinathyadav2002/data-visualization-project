@@ -35,8 +35,14 @@ export default function NumericDataVisualization({ file, datasetInfo }) {
   const prepareNumericDistributionData = () => {
     if (!summary || Object.keys(summary).length === 0) return [];
 
-    return Object.entries(summary).map(([column, stats]) => ({
-      column: column.length > 10 ? `${column.substring(0, 10)}...` : column,
+    const nonIdColumns = Object.entries(summary).filter(
+      ([column]) => !/^(id|_id|voter_ser_no|serial_no|sr_no)$/i.test(column)
+    );
+
+    const targetList = nonIdColumns.length > 0 ? nonIdColumns : Object.entries(summary);
+
+    return targetList.map(([column, stats]) => ({
+      column: column.length > 14 ? `${column.substring(0, 14)}...` : column,
       fullColumn: column,
       mean: stats.mean || 0,
       min: stats.min || 0,

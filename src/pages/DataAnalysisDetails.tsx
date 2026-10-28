@@ -74,12 +74,7 @@ const DataAnalysisDetails: React.FC<DataAnalysisDetailsProps> = ({
   const navigate = useNavigate();
   const [activeChart, setActiveChart] = useState<string>("overview");
 
-  const handleOpenDatasetViewer = async () => {
-    try {
-      await onLoadFullDataset();
-    } catch (e) {
-      console.error("Error loading full dataset:", e);
-    }
+  const handleOpenDatasetViewer = () => {
     navigate("/dataset-viewer");
   };
 

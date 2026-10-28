@@ -186,11 +186,10 @@ const ProfileComponent = () => {
               }
               setEditMode(!editMode);
             }}
-            className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
-              editMode
+            className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${editMode
                 ? "bg-slate-100 text-slate-700 hover:bg-slate-200"
                 : "bg-blue-600 text-white hover:bg-blue-700"
-            }`}
+              }`}
           >
             {editMode ? (
               <X className="w-4 h-4" />
@@ -579,14 +578,12 @@ const ProfileComponent = () => {
             </div>
             <button
               onClick={() => handleNotificationChange("email")}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                notifications.email ? "bg-blue-600" : "bg-slate-200"
-              }`}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${notifications.email ? "bg-blue-600" : "bg-slate-200"
+                }`}
             >
               <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  notifications.email ? "translate-x-6" : "translate-x-1"
-                }`}
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${notifications.email ? "translate-x-6" : "translate-x-1"
+                  }`}
               />
             </button>
           </div>
@@ -605,14 +602,12 @@ const ProfileComponent = () => {
             </div>
             <button
               onClick={() => handleNotificationChange("push")}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                notifications.push ? "bg-blue-600" : "bg-slate-200"
-              }`}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${notifications.push ? "bg-blue-600" : "bg-slate-200"
+                }`}
             >
               <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  notifications.push ? "translate-x-6" : "translate-x-1"
-                }`}
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${notifications.push ? "translate-x-6" : "translate-x-1"
+                  }`}
               />
             </button>
           </div>
@@ -631,14 +626,12 @@ const ProfileComponent = () => {
             </div>
             <button
               onClick={() => handleNotificationChange("sms")}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                notifications.sms ? "bg-blue-600" : "bg-slate-200"
-              }`}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${notifications.sms ? "bg-blue-600" : "bg-slate-200"
+                }`}
             >
               <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  notifications.sms ? "translate-x-6" : "translate-x-1"
-                }`}
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${notifications.sms ? "translate-x-6" : "translate-x-1"
+                  }`}
               />
             </button>
           </div>
@@ -659,16 +652,14 @@ const ProfileComponent = () => {
             </div>
             <button
               onClick={() => handleNotificationChange("projectUpdates")}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                notifications.projectUpdates ? "bg-blue-600" : "bg-slate-200"
-              }`}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${notifications.projectUpdates ? "bg-blue-600" : "bg-slate-200"
+                }`}
             >
               <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  notifications.projectUpdates
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${notifications.projectUpdates
                     ? "translate-x-6"
                     : "translate-x-1"
-                }`}
+                  }`}
               />
             </button>
           </div>
@@ -687,18 +678,16 @@ const ProfileComponent = () => {
             </div>
             <button
               onClick={() => handleNotificationChange("collaborationRequests")}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                notifications.collaborationRequests
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${notifications.collaborationRequests
                   ? "bg-blue-600"
                   : "bg-slate-200"
-              }`}
+                }`}
             >
               <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  notifications.collaborationRequests
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${notifications.collaborationRequests
                     ? "translate-x-6"
                     : "translate-x-1"
-                }`}
+                  }`}
               />
             </button>
           </div>
@@ -717,16 +706,14 @@ const ProfileComponent = () => {
             </div>
             <button
               onClick={() => handleNotificationChange("systemMaintenance")}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                notifications.systemMaintenance ? "bg-blue-600" : "bg-slate-200"
-              }`}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${notifications.systemMaintenance ? "bg-blue-600" : "bg-slate-200"
+                }`}
             >
               <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  notifications.systemMaintenance
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${notifications.systemMaintenance
                     ? "translate-x-6"
                     : "translate-x-1"
-                }`}
+                  }`}
               />
             </button>
           </div>

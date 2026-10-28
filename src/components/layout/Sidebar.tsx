@@ -89,8 +89,22 @@ export function SidebarMain() {
           <div>
             <SidebarLink
               linkItem={{
-                label: "Adinath Yadav",
-                to: "/",
+                label: (() => {
+                  try {
+                    const saved = localStorage.getItem("user_info");
+                    if (saved) {
+                      const u = JSON.parse(saved);
+                      return u.full_name || `${u.first_name || ""} ${u.last_name || ""}`.trim() || u.email;
+                    }
+                    const prof = localStorage.getItem("user_profile_data");
+                    if (prof) {
+                      const p = JSON.parse(prof);
+                      if (p.name) return p.name;
+                    }
+                  } catch (e) {}
+                  return "Adinath Yadav";
+                })(),
+                to: "/profile",
                 icon: (
                   <User className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
                 ),

@@ -7,7 +7,6 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { NavbarMain } from "./components/layout/NavbarMain";
 import { SignupForm } from "./pages/SignupForm";
-import SigninForm from "./pages/SignInForm";
 import { SidebarMain } from "./components/layout/Sidebar";
 import { LoginProvider } from "./context/user";
 import DashboardComponent from "./pages/Dashboard";
@@ -21,6 +20,7 @@ import { DatasetInfo, File } from "@/types/types";
 import ChartBuilder from "./pages/CreateCharts";
 import DataCleaningStepsPage from "./pages/DataCleaningSteps";
 import DataCleaning from "./pages/DataCleaning";
+import SigninForm from "./pages/SignInForm";
 
 const queryClient = new QueryClient();
 
@@ -109,8 +109,8 @@ const App = () => {
       originalFile instanceof Blob
         ? originalFile
         : file instanceof Blob
-        ? file
-        : null;
+          ? file
+          : null;
 
     if (!actualFile) return;
 

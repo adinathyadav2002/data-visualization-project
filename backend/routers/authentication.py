@@ -41,7 +41,18 @@ def login(request: UserAuthDetails, db: session = Depends(get_db)):
     token = jwtM.create_jwt_token(
         user.id, settings.jwt_secret_key, algorithm=settings.jwt_algorithm)
 
-    return {"message": "Login successful", "token": token}
+    full_name = f"{user.first_name or ''} {user.last_name or ''}".strip()
+    return {
+        "message": "Login successful",
+        "token": token,
+        "user": {
+            "id": user.id,
+            "first_name": user.first_name or "",
+            "last_name": user.last_name or "",
+            "full_name": full_name or user.email,
+            "email": user.email,
+        }
+    }
 
 
 @router.post("/verify", status_code=status.HTTP_200_OK)
@@ -68,7 +79,18 @@ def verify_token(
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
 
-        return {"message": "Token is valid", "payload": payload}
+        full_name = f"{user.first_name or ''} {user.last_name or ''}".strip()
+        return {
+            "message": "Token is valid",
+            "payload": payload,
+            "user": {
+                "id": user.id,
+                "first_name": user.first_name or "",
+                "last_name": user.last_name or "",
+                "full_name": full_name or user.email,
+                "email": user.email,
+            }
+        }
 
     except Exception as e:
         raise HTTPException(

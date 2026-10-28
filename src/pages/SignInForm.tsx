@@ -38,7 +38,8 @@ export default function SigninForm() {
     e.preventDefault();
     setSubmitting(true);
     try {
-      const token = await loginUser(formData.username, formData.password);
+      const result = await loginUser(formData.username, formData.password);
+      const token = typeof result === "string" ? result : result?.token;
       if (formData.rememberMe) {
         // Store token in cookies with expiration
         Cookie.set("access_token", token, { expires: 7 }); // Store for 7 days

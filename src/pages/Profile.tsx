@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   User,
   Edit3,
@@ -36,28 +36,47 @@ import {
 } from "lucide-react";
 
 import { useToast } from "@/hooks/use-toast";
+import { getCurrentUserProfile } from "@/api/auth";
 
 const getInitialProfile = () => {
+  let localProfile: any = {};
   try {
     const saved = localStorage.getItem("user_profile_data");
     if (saved) {
-      return JSON.parse(saved);
+      localProfile = JSON.parse(saved);
     }
   } catch (e) {
     console.error("Failed to parse saved profile:", e);
   }
+
+  let authUser: any = {};
+  try {
+    const savedAuth = localStorage.getItem("user_info");
+    if (savedAuth) {
+      authUser = JSON.parse(savedAuth);
+    }
+  } catch (e) {}
+
+  const fullName =
+    localProfile.name ||
+    authUser.full_name ||
+    `${authUser.first_name || ""} ${authUser.last_name || ""}`.trim() ||
+    (authUser.email ? authUser.email.split("@")[0] : "");
+
+  const email = localProfile.email || authUser.email || "";
+
   return {
-    name: "",
-    email: "",
-    role: "",
-    institution: "",
-    phone: "",
-    location: "",
-    bio: "",
-    joinDate: new Date().toISOString().split("T")[0],
-    avatar: null,
-    timezone: "Asia/Kolkata",
-    language: "English",
+    name: fullName,
+    email: email,
+    role: localProfile.role || "",
+    institution: localProfile.institution || "",
+    phone: localProfile.phone || "",
+    location: localProfile.location || "",
+    bio: localProfile.bio || "",
+    joinDate: localProfile.joinDate || new Date().toISOString().split("T")[0],
+    avatar: localProfile.avatar || null,
+    timezone: localProfile.timezone || "Asia/Kolkata",
+    language: localProfile.language || "English",
   };
 };
 
@@ -66,6 +85,45 @@ const ProfileComponent = () => {
   const [user, setUser] = useState(getInitialProfile);
   const [editMode, setEditMode] = useState(false);
   const [editUser, setEditUser] = useState(getInitialProfile);
+  const [activeTab, setActiveTab] = useState("profile");
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const userInfo = await getCurrentUserProfile();
+        if (userInfo) {
+          const fullName =
+            userInfo.full_name ||
+            `${userInfo.first_name || ""} ${userInfo.last_name || ""}`.trim() ||
+            user.name;
+
+          setUser((prev) => ({
+            ...prev,
+            name: fullName || prev.name,
+            email: userInfo.email || prev.email,
+          }));
+
+          setEditUser((prev) => ({
+            ...prev,
+            name: fullName || prev.name,
+            email: userInfo.email || prev.email,
+          }));
+        }
+      } catch (err) {
+        console.error("Failed to fetch user profile:", err);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+  const [stats] = useState({
+    totalProjects: 12,
+    completedReports: 8,
+    storageUsed: 2.4,
+    daysActive: 86,
+    collaborations: 5,
+    achievements: 3,
+  });
   const [showPassword, setShowPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -144,6 +202,16 @@ const ProfileComponent = () => {
     setUser({ ...editUser });
     try {
       localStorage.setItem("user_profile_data", JSON.stringify(editUser));
+      const existingAuth = localStorage.getItem("user_info");
+      const authObj = existingAuth ? JSON.parse(existingAuth) : {};
+      localStorage.setItem(
+        "user_info",
+        JSON.stringify({
+          ...authObj,
+          full_name: editUser.name,
+          email: editUser.email,
+        })
+      );
     } catch (e) {
       console.error("Failed to save profile to localStorage:", e);
     }
@@ -171,7 +239,7 @@ const ProfileComponent = () => {
   };
 
   // Profile Information Tab
-  const ProfileTab = () => (
+  const renderProfileTab = () => (
     <div className="space-y-6">
       {/* Profile Header */}
       <div className="bg-white rounded-xl border border-slate-200 p-6">
@@ -216,12 +284,22 @@ const ProfileComponent = () => {
             <h3 className="text-2xl font-bold text-slate-900">
               {user.name || <span className="text-slate-400 font-normal italic text-lg">No name specified</span>}
             </h3>
-            <p className="text-slate-600 mb-1">
-              {user.role || <span className="text-slate-400 text-sm italic">No role set</span>}
-            </p>
-            <p className="text-slate-500 text-sm">
-              {user.institution || <span className="text-slate-400 text-sm italic">No institution set</span>}
-            </p>
+            {user.email && (
+              <p className="text-slate-600 text-sm flex items-center mt-1">
+                <Mail className="w-4 h-4 mr-1.5 text-blue-600" />
+                <span className="font-medium">{user.email}</span>
+              </p>
+            )}
+            {user.role && (
+              <p className="text-slate-700 mb-1 mt-1 font-medium">
+                {user.role}
+              </p>
+            )}
+            {user.institution && (
+              <p className="text-slate-500 text-sm">
+                {user.institution}
+              </p>
+            )}
             <div className="flex items-center space-x-4 mt-3 text-sm text-slate-600">
               <div className="flex items-center">
                 <Calendar className="w-4 h-4 mr-1" />
@@ -417,7 +495,7 @@ const ProfileComponent = () => {
   );
 
   // Security Tab
-  const SecurityTab = () => (
+  const renderSecurityTab = () => (
     <div className="space-y-6">
       {/* Password Change */}
       <div className="bg-white rounded-xl border border-slate-200 p-6">
@@ -557,7 +635,7 @@ const ProfileComponent = () => {
   );
 
   // Notifications Tab
-  const NotificationsTab = () => (
+  const renderNotificationsTab = () => (
     <div className="space-y-6">
       <div className="bg-white rounded-xl border border-slate-200 p-6">
         <h3 className="text-lg font-semibold text-slate-900 mb-4">
@@ -723,7 +801,7 @@ const ProfileComponent = () => {
   );
 
   // Activity Tab
-  const ActivityTab = () => (
+  const renderActivityTab = () => (
     <div className="space-y-6">
       <div className="bg-white rounded-xl border border-slate-200 p-6">
         <h3 className="text-lg font-semibold text-slate-900 mb-4">
@@ -830,10 +908,10 @@ const ProfileComponent = () => {
 
         {/* Active Tab Content */}
         <div className="space-y-6">
-          {activeTab === "profile" && <ProfileTab />}
-          {activeTab === "security" && <SecurityTab />}
-          {activeTab === "notifications" && <NotificationsTab />}
-          {activeTab === "activity" && <ActivityTab />}
+          {activeTab === "profile" && renderProfileTab()}
+          {activeTab === "security" && renderSecurityTab()}
+          {activeTab === "notifications" && renderNotificationsTab()}
+          {activeTab === "activity" && renderActivityTab()}
         </div>
       </div>
     </div>

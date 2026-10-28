@@ -35,33 +35,37 @@ import {
   TrendingUp,
 } from "lucide-react";
 
-const ProfileComponent = () => {
-  const [user, setUser] = useState({
-    name: "Adinath Yadav",
-    email: "adinath.yadav@example.com",
-    role: "Research Student",
-    institution: "University of Technology",
-    phone: "+91 98765 43210",
-    location: "Pune, Maharashtra, India",
-    bio: "Passionate data scientist with expertise in statistical analysis and machine learning. Currently pursuing advanced research in predictive analytics.",
-    joinDate: "2024-01-15",
+import { useToast } from "@/hooks/use-toast";
+
+const getInitialProfile = () => {
+  try {
+    const saved = localStorage.getItem("user_profile_data");
+    if (saved) {
+      return JSON.parse(saved);
+    }
+  } catch (e) {
+    console.error("Failed to parse saved profile:", e);
+  }
+  return {
+    name: "",
+    email: "",
+    role: "",
+    institution: "",
+    phone: "",
+    location: "",
+    bio: "",
+    joinDate: new Date().toISOString().split("T")[0],
     avatar: null,
     timezone: "Asia/Kolkata",
     language: "English",
-  });
+  };
+};
 
-  const [stats] = useState({
-    totalProjects: 12,
-    completedReports: 8,
-    storageUsed: 2.4,
-    daysActive: 86,
-    collaborations: 5,
-    achievements: 3,
-  });
-
-  const [activeTab, setActiveTab] = useState("profile");
+const ProfileComponent = () => {
+  const { toast } = useToast();
+  const [user, setUser] = useState(getInitialProfile);
   const [editMode, setEditMode] = useState(false);
-  const [editUser, setEditUser] = useState({ ...user });
+  const [editUser, setEditUser] = useState(getInitialProfile);
   const [showPassword, setShowPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -138,7 +142,16 @@ const ProfileComponent = () => {
 
   const handleSaveProfile = () => {
     setUser({ ...editUser });
+    try {
+      localStorage.setItem("user_profile_data", JSON.stringify(editUser));
+    } catch (e) {
+      console.error("Failed to save profile to localStorage:", e);
+    }
     setEditMode(false);
+    toast({
+      title: "Profile Saved",
+      description: "Your profile information has been saved successfully.",
+    });
   };
 
   const handlePasswordChange = () => {
@@ -167,7 +180,12 @@ const ProfileComponent = () => {
             Profile Information
           </h2>
           <button
-            onClick={() => setEditMode(!editMode)}
+            onClick={() => {
+              if (!editMode) {
+                setEditUser({ ...user });
+              }
+              setEditMode(!editMode);
+            }}
             className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
               editMode
                 ? "bg-slate-100 text-slate-700 hover:bg-slate-200"
@@ -186,8 +204,8 @@ const ProfileComponent = () => {
         {/* Avatar and Basic Info */}
         <div className="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-6 mb-8">
           <div className="relative">
-            <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-lg">
-              <User className="w-12 h-12 text-white" />
+            <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-lg text-white font-bold text-2xl">
+              {user.name ? user.name.charAt(0).toUpperCase() : <User className="w-12 h-12 text-white" />}
             </div>
             {editMode && (
               <button className="absolute -bottom-2 -right-2 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors shadow-lg">
@@ -196,17 +214,23 @@ const ProfileComponent = () => {
             )}
           </div>
           <div className="flex-1">
-            <h3 className="text-2xl font-bold text-slate-900">{user.name}</h3>
-            <p className="text-slate-600 mb-1">{user.role}</p>
-            <p className="text-slate-500 text-sm">{user.institution}</p>
+            <h3 className="text-2xl font-bold text-slate-900">
+              {user.name || <span className="text-slate-400 font-normal italic text-lg">No name specified</span>}
+            </h3>
+            <p className="text-slate-600 mb-1">
+              {user.role || <span className="text-slate-400 text-sm italic">No role set</span>}
+            </p>
+            <p className="text-slate-500 text-sm">
+              {user.institution || <span className="text-slate-400 text-sm italic">No institution set</span>}
+            </p>
             <div className="flex items-center space-x-4 mt-3 text-sm text-slate-600">
               <div className="flex items-center">
                 <Calendar className="w-4 h-4 mr-1" />
-                Joined {new Date(user.joinDate).toLocaleDateString()}
+                Joined {user.joinDate ? new Date(user.joinDate).toLocaleDateString() : "Recently"}
               </div>
               <div className="flex items-center">
                 <MapPin className="w-4 h-4 mr-1" />
-                {user.location}
+                {user.location || <span className="text-slate-400 italic">No location set</span>}
               </div>
             </div>
           </div>
@@ -220,12 +244,13 @@ const ProfileComponent = () => {
             </label>
             <input
               type="text"
-              value={editMode ? editUser.name : user.name}
+              placeholder="e.g. John Doe"
+              value={editMode ? editUser.name : (user.name || "")}
               onChange={(e) =>
                 setEditUser({ ...editUser, name: e.target.value })
               }
               disabled={!editMode}
-              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-slate-50 disabled:text-slate-600 transition-colors"
+              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-slate-50 disabled:text-slate-600 transition-colors placeholder:text-slate-400"
             />
           </div>
           <div>
@@ -234,12 +259,13 @@ const ProfileComponent = () => {
             </label>
             <input
               type="email"
-              value={editMode ? editUser.email : user.email}
+              placeholder="e.g. john@example.com"
+              value={editMode ? editUser.email : (user.email || "")}
               onChange={(e) =>
                 setEditUser({ ...editUser, email: e.target.value })
               }
               disabled={!editMode}
-              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-slate-50 disabled:text-slate-600 transition-colors"
+              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-slate-50 disabled:text-slate-600 transition-colors placeholder:text-slate-400"
             />
           </div>
           <div>
@@ -248,12 +274,13 @@ const ProfileComponent = () => {
             </label>
             <input
               type="tel"
-              value={editMode ? editUser.phone : user.phone}
+              placeholder="e.g. +91 98765 43210"
+              value={editMode ? editUser.phone : (user.phone || "")}
               onChange={(e) =>
                 setEditUser({ ...editUser, phone: e.target.value })
               }
               disabled={!editMode}
-              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-slate-50 disabled:text-slate-600 transition-colors"
+              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-slate-50 disabled:text-slate-600 transition-colors placeholder:text-slate-400"
             />
           </div>
           <div>
@@ -262,12 +289,13 @@ const ProfileComponent = () => {
             </label>
             <input
               type="text"
-              value={editMode ? editUser.role : user.role}
+              placeholder="e.g. Research Student, Data Analyst"
+              value={editMode ? editUser.role : (user.role || "")}
               onChange={(e) =>
                 setEditUser({ ...editUser, role: e.target.value })
               }
               disabled={!editMode}
-              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-slate-50 disabled:text-slate-600 transition-colors"
+              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-slate-50 disabled:text-slate-600 transition-colors placeholder:text-slate-400"
             />
           </div>
           <div>
@@ -276,12 +304,13 @@ const ProfileComponent = () => {
             </label>
             <input
               type="text"
-              value={editMode ? editUser.institution : user.institution}
+              placeholder="e.g. University / Company name"
+              value={editMode ? editUser.institution : (user.institution || "")}
               onChange={(e) =>
                 setEditUser({ ...editUser, institution: e.target.value })
               }
               disabled={!editMode}
-              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-slate-50 disabled:text-slate-600 transition-colors"
+              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-slate-50 disabled:text-slate-600 transition-colors placeholder:text-slate-400"
             />
           </div>
           <div>
@@ -290,12 +319,13 @@ const ProfileComponent = () => {
             </label>
             <input
               type="text"
-              value={editMode ? editUser.location : user.location}
+              placeholder="e.g. Pune, Maharashtra, India"
+              value={editMode ? editUser.location : (user.location || "")}
               onChange={(e) =>
                 setEditUser({ ...editUser, location: e.target.value })
               }
               disabled={!editMode}
-              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-slate-50 disabled:text-slate-600 transition-colors"
+              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-slate-50 disabled:text-slate-600 transition-colors placeholder:text-slate-400"
             />
           </div>
           <div className="md:col-span-2">
@@ -303,13 +333,14 @@ const ProfileComponent = () => {
               Bio
             </label>
             <textarea
-              value={editMode ? editUser.bio : user.bio}
+              placeholder="Write a short bio about yourself..."
+              value={editMode ? editUser.bio : (user.bio || "")}
               onChange={(e) =>
                 setEditUser({ ...editUser, bio: e.target.value })
               }
               disabled={!editMode}
               rows={4}
-              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-slate-50 disabled:text-slate-600 transition-colors resize-none"
+              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-slate-50 disabled:text-slate-600 transition-colors resize-none placeholder:text-slate-400"
             />
           </div>
         </div>

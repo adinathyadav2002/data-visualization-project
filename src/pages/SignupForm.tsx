@@ -25,40 +25,30 @@ export function SignupForm() {
   });
 
   const onSubmit = async (data: {
-    firstName: string;
-    lastName: string;
     email: string;
     password: string;
     confirmPassword: string;
   }) => {
-    console.log("Form submitted");
-    console.log(data);
-    // validate form inputs
-    const { firstName, lastName, email, password, confirmPassword } = data;
+    const { email, password } = data;
 
     // Call the API to register the user
     try {
-      const token = await registerUser({
-        firstName,
-        lastName,
+      await registerUser({
         email,
         password,
       });
-
-      // clear all form fields
-    } catch (error) {
+    } catch (error: any) {
       console.error("Registration failed:", error);
       toast({
         title: "Registration Failed",
         description:
-          error.response.data.detail ||
+          error?.response?.data?.detail ||
           "An error occurred during registration.",
         variant: "destructive",
       });
       return;
     }
 
-    // Optionally, you can redirect or show a success message
     navigate("/login");
     toast({
       title: "Signup Successful",
@@ -72,51 +62,10 @@ export function SignupForm() {
         Welcome to Data Analyzer
       </h2>
       <p className="mt-2 max-w-sm text-sm text-neutral-600 dark:text-neutral-300">
-        Login to your account to access your data and explore the features of
-        our platform.
+        Create your account with your email and password. You can complete your profile details later.
       </p>
 
       <form className="my-8" onSubmit={handleSubmit(onSubmit)}>
-        <div className="mb-4 flex flex-col space-y-2 md:flex-row md:space-y-0 md:space-x-2">
-          <LabelInputContainer>
-            <Label htmlFor="firstname">First name</Label>
-            <Input
-              name="firstName"
-              {...register("firstName", {
-                required: "First name is required",
-                pattern: {
-                  value: /^[A-Za-z]+$/,
-                  message: "First name must contain only letters",
-                },
-              })}
-              placeholder="Adinath"
-            />
-            {errors.firstName && (
-              <p className="mt-2 text-sm text-red-500">
-                {errors.firstName.message}
-              </p>
-            )}
-          </LabelInputContainer>
-          <LabelInputContainer>
-            <Label htmlFor="lastname">Last name</Label>
-            <Input
-              name="lastName"
-              {...register("lastName", {
-                required: "Last name is required",
-                pattern: {
-                  value: /^[A-Za-z]+$/,
-                  message: "Last name must contain only letters",
-                },
-              })}
-              placeholder="Yadav"
-            />
-            {errors.lastName && (
-              <p className="mt-2 text-sm text-red-500">
-                {errors.lastName.message}
-              </p>
-            )}
-          </LabelInputContainer>
-        </div>
         <LabelInputContainer className="mb-4">
           <Label htmlFor="email">Email Address</Label>
           <Input

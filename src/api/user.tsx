@@ -12,8 +12,8 @@ export const registerUser = async (formdata) => {
     const response = await axios.post(
       `${import.meta.env.VITE_BACKEND_URL}api/users`,
       {
-        first_name: formdata.firstName,
-        last_name: formdata.lastName,
+        first_name: formdata.firstName || "",
+        last_name: formdata.lastName || "",
         email: formdata.email,
         password: formdata.password,
       }

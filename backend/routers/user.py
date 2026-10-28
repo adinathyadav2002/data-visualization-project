@@ -41,8 +41,8 @@ async def create_user(request: User, db: session = Depends(get_db)):
 
     hashed_password = Hash.bcrypt(request.password)
     new_user = UserModel(
-        first_name=request.first_name,
-        last_name=request.last_name,
+        first_name=request.first_name or "",
+        last_name=request.last_name or "",
         email=request.email,
         password=hashed_password
     )

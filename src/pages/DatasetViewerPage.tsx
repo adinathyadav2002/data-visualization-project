@@ -1,6 +1,9 @@
+import { useNavigate } from "react-router-dom";
 import DatasetViewer from "./DatasetViewer";
 
-const DatasetViewerPage = ({ data }) => {
+const DatasetViewerPage = ({ data }: { data: any }) => {
+  const navigate = useNavigate();
+
   if (!data) {
     return (
       <div className="p-8 text-center text-gray-500">
@@ -10,7 +13,11 @@ const DatasetViewerPage = ({ data }) => {
   }
   return (
     <div className="w-full bg-gray-50 p-4">
-      <DatasetViewer data={data} columns={data.columns} onBack={() => {}} />
+      <DatasetViewer
+        data={data}
+        columns={data.columns}
+        onBack={() => navigate("/data-analysis")}
+      />
     </div>
   );
 };
